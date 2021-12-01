@@ -3,13 +3,14 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async } from 'rea
 
 export default function Event(props) {
 
+    const height = Dimensions.get("window").height;
     const styles = StyleSheet.create({
         dot: {
             width: 20,
             height: 20,
             position: 'relative',
-            left: 14,
-            top: 20,
+            left: '3.5%',
+            top: props.current ? '15%' : '20%',
             backgroundColor: props.current ? '#FFDE00' : 'white',
             borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
@@ -23,19 +24,29 @@ export default function Event(props) {
             borderLeftWidth: 2,
             borderTopWidth: 2,
             borderRightWidth: 2,
+            zIndex: 2,
+        },
+        bar: {
+            width: 7,
+            height: props.current ? 125 : 100,
+            position: 'absolute',
+            top: 30,
+            left: '5%',
+            backgroundColor: '#FFDE00',
+            zIndex: 1,
         },
         eventContainer: {
-            width: 325,
+            width: '88%',
             height: 110,
             backgroundColor: props.current ? '#FFDE00' : 'transparent',
             position: 'relative',
             top: 0,
-            left: 50,
+            left: '10%',
             borderTopLeftRadius: 33,
             borderTopRightRadius: 33,
             borderBottomLeftRadius: 33,
             borderBottomRightRadius: 33,
-            marginBottom: 10,
+            marginBottom: props.current ? 0 : '-7%',
         },
         name: {
             position: 'relative',
@@ -51,11 +62,11 @@ export default function Event(props) {
         startTime: {
             position: 'relative',
             top: props.current ? -20 : -40,
-            left: 270,
+            left: '85%',
         },
         endTime: {
             position: 'relative',
-            left: 270,
+            left: '85%',
             top: props.current ? -10 : -30,
         },
         category: {
@@ -64,7 +75,7 @@ export default function Event(props) {
             top: props.current ? -53 : -73
         },
         to: {
-            left: 290,
+            left: '90%',
             top: props.current ? -15 : -35,
         }
     })
@@ -88,6 +99,7 @@ export default function Event(props) {
     return (
         <View>
             <View style={styles.dot}></View>
+            <View style={styles.bar}></View>
             <View style={styles.eventContainer}>
                 <Text style={styles.name}>{props.name}</Text>
                 <Text style={styles.venue}>{props.venue}</Text>

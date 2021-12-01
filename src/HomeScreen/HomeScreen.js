@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async, ScrollView } from 'react-native';
 import months from '../components/months';
 import days from '../components/days';
 import storage from '../components/Storage'
@@ -24,6 +24,7 @@ export default function HomeScreen({navigation}) {
     const onPressAddTask = () => {
 
     }
+    /*
     storage.load({
         key: 'lastUpdated',
         autoSync: true,
@@ -57,7 +58,7 @@ export default function HomeScreen({navigation}) {
             }
         })
     }
-
+    */
     const dateData = [];
     for (let i = 0; i < 7; i++) {
         const thisDate = new Date();
@@ -69,6 +70,16 @@ export default function HomeScreen({navigation}) {
             year: thisDate.getFullYear(),
             day: days[thisDate.getDay()],
         }
+    }
+
+    const scheduleData = [];
+    for (let i = 0; i < 7; i++) {
+        const dailyData = []; //something
+        const dailySchedule = [];
+        for (let j = 0; j < dailyData.length(); j++) {
+            dailySchedule[j] = <Event current={false} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
+        }
+        scheduleData[i] = dailySchedule;
     }
 
     return(
@@ -84,11 +95,17 @@ export default function HomeScreen({navigation}) {
                     return <TouchableOpacity onPress={onPress} style={selectedDay === element['order'] ? styles.selectedDateObject : styles.dateObject}><Text style={selectedDay === element['order'] ? styles.selectedBarDay: styles.day}>{element['day']}</Text><Text style={selectedDay === element['order'] ? styles.selectedBarDate: styles.barDate}>{element['date']}</Text></TouchableOpacity>
                 })}
             </View>
-            <View style={styles.dailySchedule}>
-                <View style={styles.verticalTimeBar}/>
-                <Event current={true} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
+            {}
+            <ScrollView style={styles.dailySchedule}>
+                <Event current={false} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
                 <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
-            </View>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+                <Event current={true} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
+            </ScrollView>
         </View>
     )
 }
@@ -171,14 +188,6 @@ const styles = StyleSheet.create({
         left: 0,
         top: 40,
         fontWeight: 'bold'
-    },
-    verticalTimeBar: {
-        width: 7,
-        height: 530,
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        backgroundColor: '#FFDE00'
     },
     dailySchedule: {
         position: 'absolute',
