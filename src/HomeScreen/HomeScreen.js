@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async } from 'rea
 import months from '../components/months';
 import days from '../components/days';
 import storage from '../components/Storage'
+import Event from './Event'
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -83,8 +84,10 @@ export default function HomeScreen({navigation}) {
                     return <TouchableOpacity onPress={onPress} style={selectedDay === element['order'] ? styles.selectedDateObject : styles.dateObject}><Text style={selectedDay === element['order'] ? styles.selectedBarDay: styles.day}>{element['day']}</Text><Text style={selectedDay === element['order'] ? styles.selectedBarDate: styles.barDate}>{element['date']}</Text></TouchableOpacity>
                 })}
             </View>
-            <View>
-
+            <View style={styles.dailySchedule}>
+                <View style={styles.verticalTimeBar}/>
+                <Event current={true} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
+                <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
             </View>
         </View>
     )
@@ -168,5 +171,20 @@ const styles = StyleSheet.create({
         left: 0,
         top: 40,
         fontWeight: 'bold'
+    },
+    verticalTimeBar: {
+        width: 7,
+        height: 530,
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        backgroundColor: '#FFDE00'
+    },
+    dailySchedule: {
+        position: 'absolute',
+        top: 175,
+        left: 0,
+        width: '100%',
+        height: height - 272,
     }
 })
