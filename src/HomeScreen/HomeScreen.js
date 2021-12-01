@@ -80,7 +80,7 @@ export default function HomeScreen({navigation}) {
             dailySchedule[j] = <Event current={false} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
         }
         scheduleData[i] = dailySchedule;
-    }
+    }asdfmaskdckasdcmskdcmk
 
     return(
         <View>
