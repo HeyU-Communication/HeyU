@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Dimensions, StyleSheet, Image, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { loadAsync, useFonts } from 'expo-font';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,6 +41,19 @@ function MainScreens() {
 }
 
 export default function App() {
+  const [loaded] = loadAsync({
+    Acme: require('./src/components/assets/fonts/Acme-Regular.ttf'),
+    AlefBold: require('./src/components/assets/fonts/Alef-Bold.ttf'),
+    Alef: require('./src/components/assets/fonts/Alef-Regular.ttf'),
+    Content: require('./src/components/assets/fonts/Content-Regular.ttf'),
+    ContentBold: require('./src/components/assets/fonts/Content-Bold.ttf'),
+    RhodiumLibre: require('./src/components/assets/fonts/RhodiumLibre-Regular.ttf'),
+  });
+
+  if (!loaded) {
+    return null;
+  }
+
   return (
       <NavigationContainer>
         <Stack.Navigator initialRouteName="StartScreen" backBehavior="none" screenOptions={{headerShown: false, }}>
@@ -69,7 +83,7 @@ const styles = StyleSheet.create({
 },
 heyu: {
     color: 'black',
-    fontFamily: 'Rhodium Libre',
+    fontFamily: 'RhodiumLibre',
     position: 'absolute',
     left: 0,
     top: 30,

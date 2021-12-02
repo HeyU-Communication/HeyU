@@ -24,7 +24,8 @@
     "react-native-storage": "^1.0.1",
     "react-native-web": "~0.13.12",
     "styled-component": "^2.8.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "expo-font": "~9.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

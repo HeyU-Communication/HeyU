@@ -72,12 +72,33 @@ export default function HomeScreen({navigation}) {
         }
     }
 
+    function checkNow(i, startTime, endTime) {
+        if (i !== selectedDay) {
+            return false;
+        }
+        else {
+            if (tempDate.getHours() < Math.floor(startTime / 100) || tempDate.getHours() > Math.floor(endTime / 100)) {
+                return false;
+            }
+            else if (tempDate.getHours() == Math.floor(startTime / 100) && tempDate.getMinutes() < startTime % 100) {
+                return false;
+            }
+            else if (tempDate.getHours() == Math.floor(endTime / 100) && tempDate.getMinutes() > endTime % 100) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
     const scheduleData = [];
     for (let i = 0; i < 7; i++) {
         const dailyData = []; //something
         const dailySchedule = [];
-        for (let j = 0; j < dailyData.length(); j++) {
-            dailySchedule[j] = <Event current={false} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
+        for (let j = 0; j < dailyData.length; j++) {
+            const isNow = checkNow(i, dailyData[j]['startTime'], dailyData[j]['endTime']);
+            dailySchedule[j] = <Event current={isNow} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
         }
         scheduleData[i] = dailySchedule;
     }
@@ -95,7 +116,7 @@ export default function HomeScreen({navigation}) {
                     return <TouchableOpacity onPress={onPress} style={selectedDay === element['order'] ? styles.selectedDateObject : styles.dateObject}><Text style={selectedDay === element['order'] ? styles.selectedBarDay: styles.day}>{element['day']}</Text><Text style={selectedDay === element['order'] ? styles.selectedBarDate: styles.barDate}>{element['date']}</Text></TouchableOpacity>
                 })}
             </View>
-            {}
+            {scheduleData[selectedDay]}
             <ScrollView style={styles.dailySchedule}>
                 <Event current={false} name={'Lecture'} venue={'COM2'} startTime={1400} endTime={1600} category={"CS1231S"}/>
                 <Event current={false} name={'Tutorial'} venue={'COM1'} startTime={1600} endTime={1800} category={'일상'}/>
@@ -140,7 +161,8 @@ const styles = StyleSheet.create({
         width: '100%',
         textAlign: 'center',
         color: 'white',
-        fontWeight: 'bold',
+        fontWeight: 'bold', 
+        fontFamily: 'Alef',
     },
     dateBar: {
         position: 'absolute',
