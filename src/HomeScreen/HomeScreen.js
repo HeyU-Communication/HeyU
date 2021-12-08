@@ -217,14 +217,16 @@ export default function HomeScreen({route, navigation}) {
         console.log(schedule);
     })
 
-    const tempDate = new Date();
-    const date = tempDate.getDate();
-    const month = tempDate.getMonth();
-    const year = tempDate.getFullYear();
+  useEffect(() => {
+    console.log("Loaded");
+  });
 
-    const onPressAddTask = () => {
+  const tempDate = new Date();
+  const date = tempDate.getDate();
+  const month = tempDate.getMonth();
+  const year = tempDate.getFullYear();
 
-    }
+  const onPressAddTask = () => {};
 
     const sortIntoDays = (scheduleData) => {
         const finalData = [[],[],[],[],[],[],[]]
@@ -302,6 +304,8 @@ export default function HomeScreen({route, navigation}) {
             }
         }
     }
+    scheduleData[i] = dailySchedule;
+  }
 
     let key = -1;
 
@@ -448,3 +452,4 @@ const styles = StyleSheet.create({
         zIndex: 1, 
     }
 })
+

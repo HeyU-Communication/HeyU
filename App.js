@@ -19,27 +19,33 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 function MainScreens() {
-  return (  
+  return (
     <View style={styles.view}>
-      <StatusBar style='auto' backgroundColor="#F5DF4D" />
+      <StatusBar style="auto" backgroundColor="#F5DF4D" />
       <View style={styles.upperBar}>
-        <Image style={styles.menu} source={require('./src/HomeScreen/Menu.png')} />
+        <Image
+          style={styles.menu}
+          source={require("./src/HomeScreen/Menu.png")}
+        />
         <Text style={styles.heyu}>HEY! U</Text>
-        <Image style={styles.profile} source={require('./src/HomeScreen/Profile.png')} />
+        <Image
+          style={styles.profile}
+          source={require("./src/HomeScreen/Profile.png")}
+        />
       </View>
-      <Tab.Navigator 
-        name="MainScreens" 
-        initialRouteName="HomeScreen" 
-        backBehavior="history" 
-        screenOptions={{headerShown: false, }} 
-        tabBar={props => <MyTabBar {...props} />}
+      <Tab.Navigator
+        name="MainScreens"
+        initialRouteName="HomeScreen"
+        backBehavior="history"
+        screenOptions={{ headerShown: false }}
+        tabBar={(props) => <MyTabBar {...props} />}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Schedule" component={ScheduleScreen} />
+        <Tab.Screen name="Mates" component={MatesScreen} />
       </Tab.Navigator>
     </View>
-    
-  )
+  );
 }
 
 export default function App() {
@@ -65,21 +71,19 @@ export default function App() {
       </NavigationContainer>
     );
   }
-
-  
 }
 
 const styles = StyleSheet.create({
   view: {
     width: width,
-    height: '100%',
-    borderTopColor: '#F5DF4D',
+    height: "100%",
+    borderTopColor: "#F5DF4D",
     borderTopWidth: width * 0.02,
     borderLeftColor: "#F5DF4D",
     borderLeftWidth: width * 0.02,
-    borderRightColor: '#F5DF4D',
+    borderRightColor: "#F5DF4D",
     borderRightWidth: width * 0.02,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   upperBar: {
     height: 65,
@@ -92,21 +96,21 @@ heyu: {
     left: 0,
     top: 30,
     width: width * 0.95,
-    textAlign: 'center',
-    fontWeight: 'bold',
-},
-menu: {
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  menu: {
     width: 20,
     height: 20,
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     left: 10,
-},
-profile: {
+  },
+  profile: {
     width: 25,
     height: 25,
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     right: 10,
-}
-})
+  },
+});
