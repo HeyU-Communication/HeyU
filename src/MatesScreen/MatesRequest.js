@@ -75,13 +75,13 @@ const Item = ({ title }) => (
     <View style={styles.titleBox}>
       <Text style={styles.title}>{title}</Text>
     </View>
-    <TouchableOpacity onPress={console.log("clicked accept")}>
+    <TouchableOpacity onPress={() => console.log("clicked accept")}>
       <View style={styles.acceptIcon}>
         <Text style={styles.acceptText}>수락</Text>
       </View>
     </TouchableOpacity>
     <View style={styles.blank} />
-    <TouchableOpacity onPress={console.log("clicked decline")}>
+    <TouchableOpacity onPress={() => console.log("clicked decline")}>
       <View style={styles.declineIcon}>
         <Text style={styles.declineText}>거절</Text>
       </View>

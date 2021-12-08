@@ -77,7 +77,7 @@ const Item = ({ title }) => (
       <Text style={styles.title}>{title}</Text>
     </View>
     <TouchableOpacity
-      onPress={console.log("clicked message")}
+      onPress={() => console.log("clicked message")}
       style={styles.chatButton}
     >
       <Image source={require("./ChatIcon.png")} style={styles.chatIcon} />
