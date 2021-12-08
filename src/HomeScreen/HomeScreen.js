@@ -2,9 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async, ScrollView, Alert } from 'react-native';
 import months from '../components/months';
-import days from '../components/days'
+import days from '../components/days';
+import * as Storage from '../components/Storage'
 import Event from './Event';
 import { dbService } from '../components/FirebaseFunction';
+
+const setItem = Storage.default.setItem;
+const getItem = Storage.default.getItem;
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -41,165 +45,122 @@ export default function HomeScreen({route, navigation}) {
                     return null;
                 }
                 else {
-                    if (true/*new Date(parseInt(value)).getDate() < new Date().getDate()*/) {
-                        const storeData = async () => {
-                            try {
-                                await setItem("lastUpdated", Date.now().toString());
-                            }
-                            catch (err) {
-                                Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                            }
-                        }
-                        storeData();
-                        let myScheduleData = [];
-                        let myProfileData = [];
-                        dbService
-                            .collection("profile").doc(country)
-                            .collection(school).doc(accountId)
-                            .onSnapshot((querySnapshot) => {
-                                if (querySnapshot.exists) {
-                                    myProfileData = querySnapshot.data();
-                                }
-                        })
+                    const storeData = async () => {
                         try {
-                            dbService.collection("profile").doc(country).collection(school).doc(accountId).collection("regular").onSnapshot((querySnapshot) => {
-                                const regularData = [];
-                                querySnapshot.forEach(doc => {
-                                    regularData.push(doc.data());
-                                })
-                                dbService.collection('profile').doc(country).collection(school).doc(accountId).collection('episodic').onSnapshot(async (querySnapshot2) => {
-                                    const episodicData = [];
-                                    querySnapshot2.forEach(doc => {
-                                        const tempData = doc.data();
-                                        episodicData.push(tempData);
-                                    })
-                                    //Process regular schedules
-                                    const currentDay = new Date(Date.now()).getDay()
-                                    for (let i = 0 ; i < regularData.length; i++) {
-                                        const days = regularData[i].day;
-                                        let moduleData = null;
-                                        if (! regularData[i].isPersonal) {
-                                            moduleData = await regularData[i].moduleData.get()
-                                            if (moduleData.exists) {
-                                                moduleData = moduleData.data();
-                                            }
-                                        }
-                                        for (let j = 0; j < days.length; j++) {
-                                            let tempDay = -1;
-                                            if (days[j] < currentDay) {
-                                                tempDay = 7 - days[j] + 1;
-                                            }
-                                            else {
-                                                tempDay = days[j] - currentDay
-                                            }
-                                            myScheduleData.push({
-                                                description: regularData[i].description,
-                                                title: regularData[i].title,
-                                                time: regularData[i].time,
-                                                moduleData: moduleData,
-                                                isPersonal: regularData[i].isPersonal,
-                                                day: tempDay,
-                                                venue: regularData[i].venue
-                                            })
-                                        }
-                                    }
-                                    //Process epidosic schedules
-                                    for (let i = 0; i < episodicData.length; i++) {
-                                        let startDate = new Date(episodicData[i].startTime.seconds * 1000);
-                                        let endDate = new Date(episodicData[i].endTime.seconds * 1000);
-
-                                        let day = -1;
-                                        if (startDate.getDay() > currentDay) {
-                                            day = startDate.getDay() - currentDay;
-                                        }
-                                        else {
-                                            day = 7 - startDate.getDay();
-                                        }
-
-                                        let startTime = startDate.getHours();
-                                        let endTime = endDate.getHours();
-
-                                        let startMinute = startDate.getMinutes();
-                                        let endMinute = endDate.getMinutes();
-
-                                        let startNumber = (startTime * 100) + startMinute;
-                                        let endNumber = (endTime * 100) + endMinute;
-
-                                        let timeData = [startNumber, endNumber];
-
-                                        let moduleData = episodicData[i].isPersonal ? null : episodicData[i].moduleData
-                                        myScheduleData.push({
-                                            description: episodicData[i].description,
-                                            title: episodicData[i].title,
-                                            time: timeData,
-                                            moduleData: moduleData,
-                                            isPersonal: episodicData[i].isPersonal,
-                                            day: day,
-                                            venue: episodicData[i].venue
-                                        })
-                                    }
-                                    //store raw data into local storage
-                                    const storeSchedule = async () => {
-                                        try {
-                                            await setItem('schedule', JSON.stringify(myScheduleData));
-                                        }
-                                        catch (err) {
-                                            Alert.alert(err.message);
-                                        }
-                                    }
-                                    storeSchedule();
-                                    myScheduleData = sortIntoDays(myScheduleData);
-                                    myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
-                                    console.log(myScheduleData)
-                                    setSchedule(createElement(myScheduleData));
-                                    return null;
-                                })
-                                
-                            })
+                            await setItem("lastUpdated", Date.now().toString());
                         }
                         catch (err) {
                             Alert.alert("콩쥐야 ㅈ됬어", err.message);
                         }
                     }
-                    else {
-                        let scheduleData = [[],[],[],[],[],[],[]];
-                        const getData = async () => {
-                            try {
-                                let value = await getItem('schedule');
-                                value = JSON.parse(value);
-                                if (value == null) {
-                                    const storeData = async () => {
-                                        try {
-                                            await setItem("lastUpdated", Date.now());
-                                        }
-                                        catch (err) {
-                                            Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                                        }
-                                    }
-                                    storeData();
-                                    const mySchedule = fetchSchedule(accountId, country, school);
-                                    console.log(mySchedule);
-                                    setSchedule(createElement(mySchedule));
-                                    const storeSchedule = async () => {
-                                        try {
-                                            await setItem('schedule', JSON.stringify(mySchedule));
-                                        }
-                                        catch (err) {
-                                            Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                                        }
-                                    }
-                                    storeSchedule();
-                                    return null;
-                                }
-                                else {
-                                    scheduleData = value;
-                                    setSchedule(createElement(scheduleData));
-                                }
-                            } catch(err) {
-                                Alert.alert(err.message);
+                    storeData();
+                    let myScheduleData = [];
+                    let myProfileData = [];
+                    dbService
+                        .collection("profile").doc(country)
+                        .collection(school).doc(accountId)
+                        .onSnapshot((querySnapshot) => {
+                            if (querySnapshot.exists) {
+                                myProfileData = querySnapshot.data();
                             }
-                        }
-                        getData();
+                    })
+                    try {
+                        dbService.collection("profile").doc(country).collection(school).doc(accountId).collection("regular").onSnapshot((querySnapshot) => {
+                            const regularData = [];
+                            querySnapshot.forEach(doc => {
+                                regularData.push(doc.data());
+                            })
+                            dbService.collection('profile').doc(country).collection(school).doc(accountId).collection('episodic').onSnapshot(async (querySnapshot2) => {
+                                const episodicData = [];
+                                querySnapshot2.forEach(doc => {
+                                    const tempData = doc.data();
+                                    episodicData.push(tempData);
+                                })
+                                //Process regular schedules
+                                const currentDay = new Date(Date.now()).getDay()
+                                for (let i = 0 ; i < regularData.length; i++) {
+                                    const days = regularData[i].day;
+                                    let moduleData = null;
+                                    if (! regularData[i].isPersonal) {
+                                        moduleData = await regularData[i].moduleData.get()
+                                        if (moduleData.exists) {
+                                            moduleData = moduleData.data();
+                                        }
+                                    }
+                                    for (let j = 0; j < days.length; j++) {
+                                        let tempDay = -1;
+                                        if (days[j] < currentDay) {
+                                            tempDay = 7 - days[j] + 1;
+                                        }
+                                        else {
+                                            tempDay = days[j] - currentDay
+                                        }
+                                        myScheduleData.push({
+                                            description: regularData[i].description,
+                                            title: regularData[i].title,
+                                            time: regularData[i].time,
+                                            moduleData: moduleData,
+                                            isPersonal: regularData[i].isPersonal,
+                                            day: tempDay,
+                                            venue: regularData[i].venue
+                                        })
+                                    }
+                                }
+                                //Process epidosic schedules
+                                for (let i = 0; i < episodicData.length; i++) {
+                                    let startDate = new Date(episodicData[i].startTime.seconds * 1000);
+                                    let endDate = new Date(episodicData[i].endTime.seconds * 1000);
+
+                                    let day = -1;
+                                    if (startDate.getDay() > currentDay) {
+                                        day = startDate.getDay() - currentDay;
+                                    }
+                                    else {
+                                        day = 7 - startDate.getDay();
+                                    }
+
+                                    let startTime = startDate.getHours();
+                                    let endTime = endDate.getHours();
+
+                                    let startMinute = startDate.getMinutes();
+                                    let endMinute = endDate.getMinutes();
+
+                                    let startNumber = (startTime * 100) + startMinute;
+                                    let endNumber = (endTime * 100) + endMinute;
+
+                                    let timeData = [startNumber, endNumber];
+
+                                    let moduleData = episodicData[i].isPersonal ? null : episodicData[i].moduleData
+                                    myScheduleData.push({
+                                        description: episodicData[i].description,
+                                        title: episodicData[i].title,
+                                        time: timeData,
+                                        moduleData: moduleData,
+                                        isPersonal: episodicData[i].isPersonal,
+                                        day: day,
+                                        venue: episodicData[i].venue
+                                    })
+                                }
+                                //store raw data into local storage
+                                const storeSchedule = async () => {
+                                    try {
+                                        await setItem('schedule', JSON.stringify(myScheduleData));
+                                    }
+                                    catch (err) {
+                                        Alert.alert(err.message);
+                                    }
+                                }
+                                storeSchedule();
+                                myScheduleData = sortIntoDays(myScheduleData);
+                                myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
+                                setSchedule(createElement(myScheduleData));
+                                return null;
+                            })
+                            
+                        })
+                    }
+                    catch (err) {
+                        Alert.alert("콩쥐야 ㅈ됬어", err.message);
                     }
                 }
             } catch(err) {
@@ -208,14 +169,6 @@ export default function HomeScreen({route, navigation}) {
         }
         getData();
     }, [])
-
-    useEffect(() => {
-        console.log(schedule);
-    })
-
-  useEffect(() => {
-    console.log("Loaded");
-  });
 
   const tempDate = new Date();
   const date = tempDate.getDate();
@@ -264,7 +217,6 @@ export default function HomeScreen({route, navigation}) {
             }
             finalData[i] = dailySchedule;
         }
-        console.log(finalData);
         return finalData;
     }
 
@@ -300,8 +252,6 @@ export default function HomeScreen({route, navigation}) {
             }
         }
     }
-    scheduleData[i] = dailySchedule;
-  
 
     let key = -1;
 

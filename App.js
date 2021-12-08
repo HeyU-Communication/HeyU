@@ -2,6 +2,7 @@ import React from 'react';
 import StartScreen from './src/StartScreen/StartScreen';
 import HomeScreen from './src/HomeScreen/HomeScreen';
 import ScheduleScreen from './src/ScheduleScreen/ScheduleScreen';
+import MatesScreen from './src/MatesScreen/MatesScreen';
 import MyTabBar from './src/components/MyTabBar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';

@@ -20,10 +20,6 @@ export default function MatesScreen({ navigation }) {
 
   const matesBar = ["검색", "친구", "친구요청"];
 
-  useEffect(() => {
-    console.log("Loaded");
-  });
-
   const onPressMessage = () => {};
 
   const { search } = inputText;
