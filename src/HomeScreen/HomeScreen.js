@@ -220,7 +220,7 @@ export default function HomeScreen({route, navigation}) {
         return finalData;
     }
 
-    const dateData = [];
+    const dateData = []; 
     for (let i = 0; i < 7; i++) {
         const thisDate = new Date();
         thisDate.setDate(date + i);
