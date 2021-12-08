@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
 export default function MyTabBar({ state, descriptors, navigation }) {
+  let key = -1;
+
   return (
     <View style={{ flexDirection: 'row' }}>
       {state.routes.map((route, index) => {
@@ -12,7 +14,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             : options.title !== undefined
             ? options.title
             : route.name;
-
+            key = key + 1;
         const isFocused = state.index === index;
 
         const onPress = () => {
@@ -53,6 +55,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             onPress={onPress}
             onLongPress={onLongPress}
             style={{ flex: 1 }}
+            key={key}
           >
             <Text style={thisStyle}>
               {label}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>197513292349-in4sloecn6d9he47p79aa9b326m00c1s.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.197513292349-in4sloecn6d9he47p79aa9b326m00c1s</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBMDJkS-1ffG1aND491xZe7F7T8e_X0ZQ4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>197513292349</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.heyu.communication</string>
+	<key>PROJECT_ID</key>
+	<string>heyu-812bf</string>
+	<key>STORAGE_BUCKET</key>
+	<string>heyu-812bf.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:197513292349:ios:a2b8f445a28adfe4461854</string>
+</dict>
+</plist>

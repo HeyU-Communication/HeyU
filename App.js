@@ -9,6 +9,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Dimensions, StyleSheet, Image, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from 'expo-font';
+import firebaseConfig from './src/components/FirebaseConfig';
+import * as firebase from 'firebase';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -41,7 +43,7 @@ function MainScreens() {
 }
 
 export default function App() {
-  const [loaded] = loadAsync({
+  const [loaded] = useFonts({
     Acme: require('./src/components/assets/fonts/Acme-Regular.ttf'),
     AlefBold: require('./src/components/assets/fonts/Alef-Bold.ttf'),
     Alef: require('./src/components/assets/fonts/Alef-Regular.ttf'),
@@ -53,16 +55,18 @@ export default function App() {
   if (!loaded) {
     return null;
   }
-
-  return (
+  else {
+    return (
       <NavigationContainer>
         <Stack.Navigator initialRouteName="StartScreen" backBehavior="none" screenOptions={{headerShown: false, }}>
           <Stack.Screen name="StartScreen" component={StartScreen}/>
           <Stack.Screen name="MainScreens" component={MainScreens} />
         </Stack.Navigator>
       </NavigationContainer>
-    
-  );
+    );
+  }
+
+  
 }
 
 const styles = StyleSheet.create({
