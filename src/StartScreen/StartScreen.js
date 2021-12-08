@@ -10,7 +10,14 @@ export default function StartScreen({navigation}) {
 
     useEffect(() =>{
         console.log("Loaded:" + width);
-        setTimeout(() => navigation.navigate("MainScreens"), 1000);
+        setTimeout(() => navigation.navigate("MainScreens", {
+            screen: 'Home',
+            params: {
+                accountId: 'testUser',
+                country: 'Singapore',
+                school: 'NUS'
+            }
+        }), 1000);
     })
 
     return  (
@@ -32,7 +39,7 @@ export default function StartScreen({navigation}) {
 const styles = StyleSheet.create({
     view: {
         width: width,
-        height: height + 25,
+        height: '100%',
         position: 'absolute',
         left: 0,
         top: 0,

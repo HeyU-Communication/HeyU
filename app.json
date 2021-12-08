@@ -17,13 +17,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heyu.communication",
+      "googleServiceFile": "./assets/JSONs/iOS/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.heyu.communication",
+      "googleServicesFile": "./assets/JSONs/Android/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
