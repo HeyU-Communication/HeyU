@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "197513292349",
+    "project_id": "heyu-812bf",
+    "storage_bucket": "heyu-812bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197513292349:android:f520629117a49735461854",
+        "android_client_info": {
+          "package_name": "com.heyu.communication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "197513292349-rhbksfk29dh4cjonqfq2iknn9mjopvut.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWOQmUONERzKXv9xxkTEfBMVmKwVZ-xdA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "197513292349-rhbksfk29dh4cjonqfq2iknn9mjopvut.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
