@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "transparent",
     borderColor: "#D1D1D1",
-    borderWidth: 1,
+    borderBottomWidth: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

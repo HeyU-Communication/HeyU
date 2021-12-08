@@ -68,12 +68,14 @@ export default function MatesScreen({ navigation }) {
             borderTopColor: "transparent",
           }}
           inputContainerStyle={{
-            backgroundColor: "#C8C8C8",
+            borderColor: "#E4E4E4",
+            borderWidth: 1,
+            backgroundColor: "#FFFFFF",
             width: selectedOption === 0 || selectedOption === 1 ? "100%" : "0%",
             height:
               selectedOption === 0 || selectedOption === 1 ? "100%" : "0%",
           }}
-          placeholderTextColor="#E4E4E4"
+          placeholderTextColor="#A1A1A1"
           pointerEvents={selectedOption === 2 && "none"}
         />
       </View>
