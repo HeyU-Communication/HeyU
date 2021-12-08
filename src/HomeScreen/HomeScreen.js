@@ -2,9 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async, ScrollView } from 'react-native';
 import months from '../components/months';
-import days from '../components/days';
-import storage from '../components/Storage'
-import Event from './Event'
+import days from '../components/days'
+import Event from './Event';
+import { dbService } from '../components/FirebaseFunction';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
