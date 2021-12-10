@@ -26,7 +26,10 @@ export { authService, dbService, storageService }
 
 export async function fetchProfile(accountId, country, school) {
     try {
-        firebase.firestore().collection("profile").doc(country).collection(school).doc(accountId).onSnapshot((querySnapshot) => {
+        dbService
+        .collection("profile").doc(country)
+        .collection(school).doc(accountId)
+        .onSnapshot((querySnapshot) => {
             if (querySnapshot.exists) {
                 return querySnapshot.data();
             }
@@ -34,26 +37,126 @@ export async function fetchProfile(accountId, country, school) {
     }
     catch (err) {
         Alert.alert("콩쥐야 ㅈ됬어", err.message);
+        return null;
     }
 }
 
-export async function fetchSchedule(accountId, country, school) {
+export async function fetchSchedule(accountId, country, school, setter) {
+    const sortIntoDays = (scheduleData) => {
+        const finalData = [[],[],[],[],[],[],[]]
+        for (let i = 0; i < scheduleData.length; i++) {
+            finalData[scheduleData[i].day].push(scheduleData[i]);
+        }
+        return finalData;
+    }
+
+    const sortEachDays = (a, b) => {
+        if (a.time[0] > b.time[0]) {
+            return 1;
+        }
+        else if (a.time[0] < b.time[0]) {
+            return -1;
+        }
+        else {
+            if (a.time[1] > b.time[1]) {
+                return 1;
+            }
+            else if (a.time[1] < b.time[1]) {
+                return -1;
+            }
+            else {
+                return 0
+            }
+        }
+    }
+
     try {
-        firebase.firestore().collection("profile").doc(country).collection(school).doc(accountId).collection("regular").onSnapshot((querySnapshot) => {
-            firebase.firestore().collection('profile').doc(country).collection(school).doc(accountId).collection('episodic').onSnapshot((querySnapshot2) => {
-                
-                if (querySnapshot.exists) {
-                    console.log('arrive3d here')
-                }
-                if (querySnapshot.exists) {
-                    return querySnapshot.data();
-                }
+        let myScheduleData = [];
+        dbService.collection("profile").doc(country).collection(school).doc(accountId).collection("regular").onSnapshot((querySnapshot) => {
+            const regularData = [];
+            querySnapshot.forEach(doc => {
+                regularData.push(doc.data());
             })
-            
+            dbService.collection('profile').doc(country).collection(school).doc(accountId).collection('episodic').onSnapshot(async (querySnapshot2) => {
+                const episodicData = [];
+                querySnapshot2.forEach(doc => {
+                    const tempData = doc.data();
+                    episodicData.push(tempData);
+                })
+                //Process regular schedules
+                const currentDay = new Date(Date.now()).getDay()
+                for (let i = 0 ; i < regularData.length; i++) {
+                    const days = regularData[i].day;
+                    let moduleData = null;
+                    if (! regularData[i].isPersonal) {
+                        moduleData = await regularData[i].moduleData.get()
+                        if (moduleData.exists) {
+                            moduleData = moduleData.data();
+                        }
+                    }
+                    for (let j = 0; j < days.length; j++) {
+                        let tempDay = -1;
+                        if (days[j] < currentDay) {
+                            tempDay = 7 - days[j] + 1;
+                        }
+                        else {
+                            tempDay = days[j] - currentDay
+                        }
+                        myScheduleData.push({
+                            description: regularData[i].description,
+                            title: regularData[i].title,
+                            time: regularData[i].time,
+                            moduleData: moduleData,
+                            isPersonal: regularData[i].isPersonal,
+                            day: tempDay,
+                            venue: regularData[i].venue
+                        })
+                    }
+                }
+                //Process epidosic schedules
+                for (let i = 0; i < episodicData.length; i++) {
+                    let startDate = new Date(episodicData[i].startTime.seconds * 1000);
+                    let endDate = new Date(episodicData[i].endTime.seconds * 1000);
+
+                    let day = -1;
+                    if (startDate.getDay() >= currentDay) {
+                        day = startDate.getDay() - currentDay;
+                    }
+                    else {
+                        day = 7 - startDate.getDay();
+                    }
+
+                    let startTime = startDate.getHours();
+                    let endTime = endDate.getHours();
+
+                    let startMinute = startDate.getMinutes();
+                    let endMinute = endDate.getMinutes();
+
+                    let startNumber = (startTime * 100) + startMinute;
+                    let endNumber = (endTime * 100) + endMinute;
+
+                    let timeData = [startNumber, endNumber];
+
+                    let moduleData = episodicData[i].isPersonal ? null : episodicData[i].moduleData
+                    myScheduleData.push({
+                        description: episodicData[i].description,
+                        title: episodicData[i].title,
+                        time: timeData,
+                        moduleData: moduleData,
+                        isPersonal: episodicData[i].isPersonal,
+                        day: day,
+                        venue: episodicData[i].venue
+                    })
+                }
+                myScheduleData = sortIntoDays(myScheduleData);
+                myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
+                setter(myScheduleData);
+            })
         })
     }
     catch (err) {
         Alert.alert("콩쥐야 ㅈ됬어", err.message);
+        return null;
     }
 }
 

@@ -5,7 +5,7 @@ import months from '../components/months';
 import days from '../components/days';
 import * as Storage from '../components/Storage'
 import Event from './Event';
-import { dbService } from '../components/FirebaseFunction';
+import { dbService, fetchSchedule } from '../components/FirebaseFunction';
 
 const setItem = Storage.default.setItem;
 const getItem = Storage.default.getItem;
@@ -17,193 +17,18 @@ export default function HomeScreen({route, navigation}) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
 
-    const { accountId, country, school } = route.params;
-    
+    const { accountId, country, school, scheduleProps, /*authProps*/ } = route.params;
+
+    const setterFunc = (schedule) => {
+        setSchedule(createElement(schedule))
+    }
+
     useEffect(() => {
-        const getData = async () => {
-            try {
-                const value = await getItem('lastUpdated')
-                if (value == null) {
-                    const storeLastUpdated = async () => {
-                        try {
-                            await setItem("lastUpdated", Date.now().toString());
-                        }
-                        catch (err) {
-                            Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                        }
-                    }
-                    const storeSchedule = async () => {
-                        try {
-                            await setItem("schedule", JSON.stringify([[],[],[],[],[],[],[]]));
-                        }
-                        catch (err) {
-                            Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                        }
-                    }
-                    storeLastUpdated();
-                    storeSchedule();
-                    return null;
-                }
-                else {
-                    const storeData = async () => {
-                        try {
-                            await setItem("lastUpdated", Date.now().toString());
-                        }
-                        catch (err) {
-                            Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                        }
-                    }
-                    storeData();
-                    let myScheduleData = [];
-                    let myProfileData = [];
-                    dbService
-                        .collection("profile").doc(country)
-                        .collection(school).doc(accountId)
-                        .onSnapshot((querySnapshot) => {
-                            if (querySnapshot.exists) {
-                                myProfileData = querySnapshot.data();
-                            }
-                    })
-                    try {
-                        dbService.collection("profile").doc(country).collection(school).doc(accountId).collection("regular").onSnapshot((querySnapshot) => {
-                            const regularData = [];
-                            querySnapshot.forEach(doc => {
-                                regularData.push(doc.data());
-                            })
-                            dbService.collection('profile').doc(country).collection(school).doc(accountId).collection('episodic').onSnapshot(async (querySnapshot2) => {
-                                const episodicData = [];
-                                querySnapshot2.forEach(doc => {
-                                    const tempData = doc.data();
-                                    episodicData.push(tempData);
-                                })
-                                //Process regular schedules
-                                const currentDay = new Date(Date.now()).getDay()
-                                for (let i = 0 ; i < regularData.length; i++) {
-                                    const days = regularData[i].day;
-                                    let moduleData = null;
-                                    if (! regularData[i].isPersonal) {
-                                        moduleData = await regularData[i].moduleData.get()
-                                        if (moduleData.exists) {
-                                            moduleData = moduleData.data();
-                                        }
-                                    }
-                                    for (let j = 0; j < days.length; j++) {
-                                        let tempDay = -1;
-                                        if (days[j] < currentDay) {
-                                            tempDay = 7 - days[j] + 1;
-                                        }
-                                        else {
-                                            tempDay = days[j] - currentDay
-                                        }
-                                        myScheduleData.push({
-                                            description: regularData[i].description,
-                                            title: regularData[i].title,
-                                            time: regularData[i].time,
-                                            moduleData: moduleData,
-                                            isPersonal: regularData[i].isPersonal,
-                                            day: tempDay,
-                                            venue: regularData[i].venue
-                                        })
-                                    }
-                                }
-                                //Process epidosic schedules
-                                for (let i = 0; i < episodicData.length; i++) {
-                                    let startDate = new Date(episodicData[i].startTime.seconds * 1000);
-                                    let endDate = new Date(episodicData[i].endTime.seconds * 1000);
-
-                                    let day = -1;
-                                    if (startDate.getDay() > currentDay) {
-                                        day = startDate.getDay() - currentDay;
-                                    }
-                                    else {
-                                        day = 7 - startDate.getDay();
-                                    }
-
-                                    let startTime = startDate.getHours();
-                                    let endTime = endDate.getHours();
-
-                                    let startMinute = startDate.getMinutes();
-                                    let endMinute = endDate.getMinutes();
-
-                                    let startNumber = (startTime * 100) + startMinute;
-                                    let endNumber = (endTime * 100) + endMinute;
-
-                                    let timeData = [startNumber, endNumber];
-
-                                    let moduleData = episodicData[i].isPersonal ? null : episodicData[i].moduleData
-                                    myScheduleData.push({
-                                        description: episodicData[i].description,
-                                        title: episodicData[i].title,
-                                        time: timeData,
-                                        moduleData: moduleData,
-                                        isPersonal: episodicData[i].isPersonal,
-                                        day: day,
-                                        venue: episodicData[i].venue
-                                    })
-                                }
-                                //store raw data into local storage
-                                const storeSchedule = async () => {
-                                    try {
-                                        await setItem('schedule', JSON.stringify(myScheduleData));
-                                    }
-                                    catch (err) {
-                                        Alert.alert(err.message);
-                                    }
-                                }
-                                storeSchedule();
-                                myScheduleData = sortIntoDays(myScheduleData);
-                                myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
-                                setSchedule(createElement(myScheduleData));
-                                return null;
-                            })
-                            
-                        })
-                    }
-                    catch (err) {
-                        Alert.alert("콩쥐야 ㅈ됬어", err.message);
-                    }
-                }
-            } catch(err) {
-                Alert.alert("콩쥐야 ㅈ됬어", err.message);
-            }
-        }
-        getData();
+        setSchedule(createElement(scheduleProps));
+        let timer = updateEveryMinute();
     }, [])
 
-  const tempDate = new Date();
-  const date = tempDate.getDate();
-  const month = tempDate.getMonth();
-  const year = tempDate.getFullYear();
-
-  const onPressAddTask = () => {};
-
-    const sortIntoDays = (scheduleData) => {
-        const finalData = [[],[],[],[],[],[],[]]
-        for (let i = 0; i < scheduleData.length; i++) {
-            finalData[scheduleData[i].day].push(scheduleData[i]);
-        }
-        return finalData;
-    }
-
-    const sortEachDays = (a, b) => {
-        if (a.time[0] > b.time[0]) {
-            return -1;
-        }
-        else if (a.time[0] < b.time[0]) {
-            return 1;
-        }
-        else {
-            if (a.time[1] > b.time[1]) {
-                return -1;
-            }
-            else if (a.time[1] < b.time[1]) {
-                return 1;
-            }
-            else {
-                return 0
-            }
-        }
-    }
+    const onPressAddTask = () => {};
 
     const createElement = (scheduleData) => {
         const finalData = [[],[],[],[],[],[],[]]
@@ -219,22 +44,10 @@ export default function HomeScreen({route, navigation}) {
         }
         return finalData;
     }
-
-    const dateData = []; 
-    for (let i = 0; i < 7; i++) {
-        const thisDate = new Date();
-        thisDate.setDate(date + i);
-        dateData[i] = {
-            order: i,
-            date: thisDate.getDate(),
-            month: thisDate.getMonth(),
-            year: thisDate.getFullYear(),
-            day: days[thisDate.getDay()],
-        }
-    }
-
+    
     function checkNow(i, startTime, endTime) {
-        if (i !== selectedDay) {
+        const tempDate = new Date();
+        if (i !== 0) {
             return false;
         }
         else {
@@ -250,6 +63,30 @@ export default function HomeScreen({route, navigation}) {
             else {
                 return true;
             }
+        }
+    }
+
+    function updateEveryMinute() {
+        return setInterval(() => {
+            console.log("updated")
+            fetchSchedule(accountId, country, school, setterFunc);
+        }, 60 * 1000)
+    }
+
+    const tempDate = new Date();
+    const date = tempDate.getDate();
+    const month = tempDate.getMonth();
+    const year = tempDate.getFullYear();
+    const dateData = []; 
+    for (let i = 0; i < 7; i++) {
+        const thisDate = new Date();
+        thisDate.setDate(date + i);
+        dateData[i] = {
+            order: i,
+            date: thisDate.getDate(),
+            month: thisDate.getMonth(),
+            year: thisDate.getFullYear(),
+            day: days[thisDate.getDay()],
         }
     }
 
@@ -272,7 +109,6 @@ export default function HomeScreen({route, navigation}) {
             <View style={styles.verticalBar} />    
             <View style={styles.dot} />
             <ScrollView style={styles.dailySchedule}>
-                
                 {schedule[selectedDay]}
             </ScrollView>
         </View>
@@ -395,7 +231,7 @@ const styles = StyleSheet.create({
         left: 0,
         width: '100%',
         height: height - 240,
-        zIndex: 1, 
+        zIndex: 3, 
     }
 })
 
