@@ -7,7 +7,7 @@ import MyTabBar from './src/components/MyTabBar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Dimensions, StyleSheet, Image, Text } from 'react-native';
+import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from 'expo-font';
 import firebaseConfig from './src/components/FirebaseConfig';
@@ -24,15 +24,19 @@ function MainScreens() {
     <View style={styles.view}>
       <StatusBar style="auto" backgroundColor="#F5DF4D" />
       <View style={styles.upperBar}>
-        <Image
-          style={styles.menu}
-          source={require("./src/HomeScreen/Menu.png")}
-        />
+        <TouchableOpacity style={styles.menuHighlight}>
+          <Image
+            style={styles.menu}
+            source={require("./src/HomeScreen/Menu.png")}
+          />
+        </TouchableOpacity>
         <Text style={styles.heyu}>HEY! U</Text>
-        <Image
-          style={styles.profile}
-          source={require("./src/HomeScreen/Profile.png")}
-        />
+        <TouchableOpacity style={styles.profileHighlight}>
+          <Image
+            style={styles.profile}
+            source={require("./src/HomeScreen/Profile.png")}
+          />
+        </TouchableOpacity>
       </View>
       <Tab.Navigator
         name="MainScreens"
@@ -89,8 +93,15 @@ const styles = StyleSheet.create({
   upperBar: {
     height: 65,
     backgroundColor: "#F5DF4D",
-},
-heyu: {
+  },
+  menuHighlight: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    top: 30,
+    left: 0,
+  },
+  heyu: {
     color: 'black',
     fontFamily: 'RhodiumLibre',
     position: 'absolute',
@@ -104,14 +115,20 @@ heyu: {
     width: 20,
     height: 20,
     position: "absolute",
-    top: 30,
+    top: 5,
     left: 10,
+  },
+  profileHighlight: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    top: 30,
+    right: 0,
   },
   profile: {
     width: 25,
     height: 25,
     position: "absolute",
-    top: 30,
-    right: 10,
+    top: 2,
   },
 });

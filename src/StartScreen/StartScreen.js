@@ -1,24 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
+import { fetchProfile, fetchSchedule } from '../components/FirebaseFunction';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get   ("window").height;
 
 export default function StartScreen({navigation}) {
     const [loaded, setLoaded] = useState(false);
+    const [schedule, setSchedule] = useState([[],[],[],[],[],[],[]])
 
     useEffect(() =>{
-        console.log("Loaded:" + width);
-        setTimeout(() => navigation.navigate("MainScreens", {
-            screen: 'Home',
-            params: {
-                accountId: 'testUser',
-                country: 'Singapore',
-                school: 'NUS'
-            }
-        }), 1000);
-    })
+        //const myAuth = await fetchProfile();
+
+        let accountId = 'testUser';
+        let country = 'Singapore';
+        let school = "NUS";
+
+        function navigateTo(schedule) {
+            navigation.navigate("MainScreens", {
+                screen: 'Home',
+                params: {
+                    accountId: accountId,
+                    country: country,
+                    school: school,
+                    scheduleProps: schedule,
+                    //authProps: myAuth
+                }
+            });
+        }
+
+        fetchSchedule(accountId, country, school, navigateTo);
+    },)
 
     return  (
         <View style={styles.view}>
