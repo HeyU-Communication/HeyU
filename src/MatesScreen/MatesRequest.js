@@ -107,7 +107,7 @@ const MatesRequest = () => {
 const styles = StyleSheet.create({
   container: {
     top: 150,
-    height: "85%",
+    height: "90%",
   },
   item: {
     flex: 1,
