@@ -76,9 +76,7 @@ const Item = ({ title }) => (
     <View style={styles.titleBox}>
       <Text style={styles.title}>{title}</Text>
     </View>
-    <TouchableOpacity
-      style={styles.chatButton}
-    >
+    <TouchableOpacity style={styles.chatButton}>
       <Image source={require("./ChatIcon.png")} style={styles.chatIcon} />
     </TouchableOpacity>
   </View>
@@ -100,8 +98,8 @@ const MatesList = () => {
 
 const styles = StyleSheet.create({
   container: {
-    top: 250,
-    height: "75%",
+    top: 190,
+    height: "85%",
   },
   item: {
     flex: 1,
