@@ -12,11 +12,9 @@ import MyTabBar from './src/components/MyTabBar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { loadAsync, useFonts } from "expo-font";
-import firebaseConfig from "./src/components/FirebaseConfig";
-import * as firebase from "firebase";
+import { useFonts } from "expo-font";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();

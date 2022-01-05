@@ -1,7 +1,6 @@
-import React, {useState, useEffect, useReducer} from 'react';
+import React, {useState, useEffect } from 'react';
 import { StyleSheet, Text, Image, View, Dimensions, TouchableOpacity, Async, ScrollView, Alert, TextInput, Touchable } from 'react-native';
-import { authService, dbService, fetchSchedule, signIn } from '../components/FirebaseFunction';
-import {useNavigation} from '@react-navigation/native';
+import { authService, dbService } from '../components/FirebaseFunction';
 import { CircleSnail } from 'react-native-progress';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -13,8 +12,6 @@ export default function LoginScreen({route, navigation}) {
     const [passwordFailed, setPasswordFailed] = useState(false);
     const [emailFormatFailed, setEmailFormatFailed] = useState(false);
     const [otherFailed, setOtherFailed] = useState(false);
-    const [schedule, changeSchedule] = useState([[],[],[],[],[],[],[]])
-    const [scheduleLoaded, setScheduleLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -62,7 +59,7 @@ export default function LoginScreen({route, navigation}) {
             
             if (! user.emailVerified) {
                 Alert.alert('로그인 실패', '계정의 이메일이 인증되지 않았어요. 이메일을 인증해주세요. ')
-                //return;
+                return;
             }
 
             dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
