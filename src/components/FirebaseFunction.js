@@ -1,7 +1,8 @@
-import * as firebase from "firebase";
+import firebase from "firebase";
 import "firebase/firestore";
 import {Alert} from "react-native";
 import 'firebase/auth';
+import { NavigationContainer } from "@react-navigation/native";
 
 if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -14,9 +15,10 @@ if (!firebase.apps.length) {
         appId: '1:197513292349:android:f520629117a49735461854',
         measurementId: '294864492',
     });
- }else {
+} 
+else {
     firebase.app(); // if already initialized, use that one
- }
+}
 
 const authService = firebase.auth();
 const dbService = firebase.firestore();
@@ -41,7 +43,7 @@ export async function fetchProfile(accountId, country, school) {
     }
 }
 
-export async function fetchSchedule(accountId, country, school, setter) {
+export async function fetchSchedule(accountId, country, school) {
     const sortIntoDays = (scheduleData) => {
         const finalData = [[],[],[],[],[],[],[]]
         for (let i = 0; i < scheduleData.length; i++) {
@@ -150,13 +152,15 @@ export async function fetchSchedule(accountId, country, school, setter) {
                 }
                 myScheduleData = sortIntoDays(myScheduleData);
                 myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
-                setter(myScheduleData);
+                console.log("MyScheduleData")
+                console.log(myScheduleData);
+                return myScheduleData;
             })
         })
     }
     catch (err) {
         Alert.alert("콩쥐야 ㅈ됬어", err.message);
-        return null;
+        return [];
     }
 }
 
@@ -169,31 +173,35 @@ export async function createSchedule(accountId, country, school) {
     }
 }
 
-export async function registration(email, password, lastName, firstName) {
-  try {
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
-    const currentUser = firebase.auth().currentUser;
+export async function createPost(accountId, country, school, boardId) {
 
-    const db = firebase.firestore();
-    db.collection("users")
-      .doc(currentUser.uid)
-      .set({
-        email: currentUser.email,
-        lastName: lastName,
-        firstName: firstName,
-      });
-  } catch (err) {
-    Alert.alert("콩쥐야 ㅈ됬어", err.message);
-  }
 }
 
-export async function signIn(email, password) {
+export async function registration(email, password) {
+    try {
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const currentUser = firebase.auth().currentUser;
+
+        const db = firebase.firestore();
+        db.collection("users")
+        .doc(currentUser.uid)
+        .set({
+            email: currentUser.email,
+            name: name
+        });
+    } catch (err) {
+        Alert.alert("콩쥐야 ㅈ됬어", err.message);
+    }
+}
+
+export async function signIn(email, password, country, school, setter, failCallback) {
   try {
-   await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password);
+        firebase.auth().signInWithEmailAndPassword(email, password).then(userCredential => {
+            const user = userCredential.user;
+            fetchSchedule(user.uid, country, school, setter)
+        })
   } catch (err) {
-    Alert.alert("콩쥐야 ㅈ됬어", err.message);
+        failCallback(true);
   }
 }
 
@@ -203,4 +211,18 @@ export async function loggingOut() {
   } catch (err) {
     Alert.alert('콩쥐야 ㅈ됬어', err.message);
   }
+}
+
+export async function getUniversities(setter) {
+    try {
+        dbService.collection('universities').onSnapshot(querySnapshot => {
+            const univs = [];
+            querySnapshot.forEach(element => {
+                univs.push(element.data());
+            })
+            setter(univs)
+        })
+    } catch (err) {
+        Alert.alert('콩쥐야 ㅈ됬어', err.message)
+    }
 }
