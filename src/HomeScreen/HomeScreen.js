@@ -1,11 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, BackHandler, ScrollView, Alert } from 'react-native';
 import months from '../components/months';
 import days from '../components/days';
 import * as Storage from '../components/Storage'
 import Event from './Event';
-import { dbService, fetchSchedule } from '../components/FirebaseFunction';
+import { fetchSchedule } from '../components/FirebaseFunction';
 
 const setItem = Storage.default.setItem;
 const getItem = Storage.default.getItem;
@@ -17,15 +16,40 @@ export default function HomeScreen({route, navigation}) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
 
-    const { accountId, country, school, scheduleProps, /*authProps*/ } = route.params;
+    const { accountId, country, university, scheduleProps, /*authProps*/ } = route.params;
 
     const setterFunc = (schedule) => {
         setSchedule(createElement(schedule))
     }
 
+
     useEffect(() => {
+        const backAction = () => {
+            Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
+              {
+                text: "아니요",
+                onPress: () => null,
+                style: "cancel"
+              },
+              { text: "네", onPress: () => BackHandler.exitApp() }
+            ]);
+            return true;
+          };
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+          );
         setSchedule(createElement(scheduleProps));
-        let timer = updateEveryMinute();
+        const timer = setInterval(async () => {
+            console.log("updated")
+            const schedule = await fetchSchedule(accountId, country, university);
+            setterFunc(schedule);
+        }, 60 * 1000)
+
+        return () => {
+            clearInterval(timer);
+            backHandler.remove();
+        }
     }, [])
 
     const onPressAddTask = () => {};
@@ -64,13 +88,6 @@ export default function HomeScreen({route, navigation}) {
                 return true;
             }
         }
-    }
-
-    function updateEveryMinute() {
-        return setInterval(() => {
-            console.log("updated")
-            fetchSchedule(accountId, country, school, setterFunc);
-        }, 60 * 1000)
     }
 
     const tempDate = new Date();

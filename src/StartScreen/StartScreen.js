@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
-import { fetchProfile, fetchSchedule } from '../components/FirebaseFunction';
+import { StyleSheet, Text, View, Dimensions, Image, Alert } from 'react-native';
+import { fetchProfile, fetchSchedule, signIn } from '../components/FirebaseFunction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get   ("window").height;
@@ -12,11 +13,6 @@ export default function StartScreen({navigation}) {
 
     useEffect(() =>{
         //const myAuth = await fetchProfile();
-
-        let accountId = 'testUser';
-        let country = 'Singapore';
-        let school = "NUS";
-
         function navigateTo(schedule) {
             navigation.navigate("MainScreens", {
                 screen: 'Home',
@@ -30,7 +26,34 @@ export default function StartScreen({navigation}) {
             });
         }
 
-        fetchSchedule(accountId, country, school, navigateTo);
+        const getData = async () => {
+            try {
+                const email = await AsyncStorage.getItem('email');
+                const pw = await AsyncStorage.getItem('pw');
+                const country = await AsyncStorage.getItem('country');
+                const school = await AsyncStorage.getItem("school");
+
+                console.log(email);
+                console.log(pw);
+                console.log(country);
+                console.log(school);
+
+                if (email !== null && pw !== null) {
+                    signIn(email, pw, country, school, navigateTo, () => {
+                        navigation.navigate("LoginScreen");
+                    })
+                }
+                else {
+                    navigation.navigate("LoginScreen")
+                }
+            }
+            catch (e) {
+                console.log(e)
+                navigation.navigate("LoginScreen")
+            }
+        }
+
+        getData();
     },)
 
     return  (
