@@ -76,46 +76,62 @@ export default function Event(props) {
         startTime: {
             position: 'relative',
             top: props.current ? 18 : 2,
-            left: props.current ? '80%' : '85%',
+            left: props.current ? props.startTime == '전 날' ? '77%' : '75%' : props.startTime == '전 날' ? '86%' : '85%',
         },
         to: {
-            left: props.current ? '85%' : '90%',
+            left: props.current ? '80%' : '90%',
             top: props.current ? 18 : 2
         },
         endTime: {
             position: 'relative',
-            left: props.current ? '80%' : '85%',
+            left: props.current ? props.endTime == '다음 날' ? '74%' : '75%' : props.endTime == '다음 날' ? '84%' : '85%',
             top: props.current ? 18 : 2,
         },
     })
-    let startHour = Math.floor(props.startTime / 100).toString();
-    if (startHour < 10) {
-        startHour = "0" + startHour.toString();
-    }
+    let startHour;
+    let startMinute;
+    let endHour;
+    let endMinute;
+    if (props.startTime == '전 날') {
+
+    } 
     else {
-        startHour = startHour.toString();
+        startHour = Math.floor(props.startTime / 100).toString();
+        if (startHour < 10) {
+            startHour = "0" + startHour.toString();
+        }
+        else {
+            startHour = startHour.toString();
+        }
+        startMinute = props.startTime % 100;
+        if (startMinute < 10) {
+            startMinute = "0" + startMinute.toString();
+        }
+        else {
+            startMinute = startMinute.toString();
+        }
     }
-    let startMinute = props.startTime % 100;
-    if (startMinute < 10) {
-        startMinute = "0" + startMinute.toString();
-    }
+    if (props.endTime == '다음 날') {
+        
+    }   
     else {
-        startMinute = startMinute.toString();
+        
+        endHour = Math.floor(props.endTime / 100).toString();
+        if (endHour < 10) {
+            endHour = "0" + endHour.toString();
+        }
+        else {
+            endHour = endHour.toString();
+        }
+        endMinute = (props.endTime % 100);
+        if (endMinute < 10) {
+            endMinute = "0" + endMinute.toString();
+        }
+        else {
+            endMinute = endMinute.toString();
+        }
     }
-    let endHour = Math.floor(props.endTime / 100).toString();
-    if (endHour < 10) {
-        endHour = "0" + endHour.toString();
-    }
-    else {
-        endHour = endHour.toString();
-    }
-    let endMinute = (props.endTime % 100);
-    if (endMinute < 10) {
-        endMinute = "0" + endMinute.toString();
-    }
-    else {
-        endMinute = endMinute.toString();
-    }
+    
 
     return (
         <View>
@@ -128,9 +144,9 @@ export default function Event(props) {
                     <Text style={styles.venue}>{props.venue}</Text>
                 </View>
                 <View style={styles.eventTimes}>
-                    <Text style={styles.startTime}>{startHour}:{startMinute}</Text>
+                    <Text style={styles.startTime}>{props.startTime == '전 날' ? '전 날' : startHour + ':' + startMinute}</Text>
                     <Text style={styles.to}>to</Text>
-                    <Text style={styles.endTime}>{endHour}:{endMinute}</Text>
+                    <Text style={styles.endTime}>{props.endTime == '다음 날' ? '다음 날' : endHour + ':' + endMinute}</Text>
                 </View>
 
                 

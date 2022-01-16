@@ -596,6 +596,16 @@ export default function RegistrationScreen({route, navigation}) {
                 uid: user.uid,
                 profileUrl: profileUrl,
             }).catch(err => console.log(err))
+            const uploadProfileRef = await dbService.collection('profileRef').doc(user.uid).set({
+                country: country,
+                uid: user.uid,
+                university: university
+            })
+            const initialSetup = await dbService.collection('profile').doc(country).collection(university).doc(user.uid).collection('category').doc('noCategory').set({
+                color: '#FFFFFF',
+                isModule: false,
+                name: 'No category'
+            })
             console.log("Profile uploaded")
             console.log("Sending verification email")
             await authService.currentUser.sendEmailVerification().then(() => {
