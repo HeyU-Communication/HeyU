@@ -132,11 +132,9 @@ export async function fetchSchedule(uid, country, university, setter) {
                 })
                 //Process regular schedules
                 for (let i = 0 ; i < regularData.length; i++) {
-                    console.log('regular')
                     let startDate = new Date(regularData[i].startDate.seconds * 1000);
                     let endDate = new Date(regularData[i].endDate.seconds * 1000)
                     if (regularData[i].repetition == 'daily') {
-                        console.log("Daily")
                         let category = {}; 
                         let cat = await regularData[i].category.get()
                         category = cat.data();
@@ -152,7 +150,6 @@ export async function fetchSchedule(uid, country, university, setter) {
                         }
                     }
                     else if (regularData[i].repetition == 'weekly') {
-                        console.log("Weekly")
                         let category = {};
                         let now = new Date();
                         let tempStart = new Date(regularData[i].startDate.seconds * 1000)
@@ -189,7 +186,6 @@ export async function fetchSchedule(uid, country, university, setter) {
                         }
                     }
                     else if (regularData[i].repetition == 'biweekly') {
-                        console.log("Biweekly")
                         let category = {};
                         let now = new Date();
                         let tempStart = makeDummyDateCopy(new Date(regularData[i].startDate.seconds * 1000)); 
@@ -237,7 +233,6 @@ export async function fetchSchedule(uid, country, university, setter) {
                         }
                     }
                     else if (regularData[i].repetition == 'monthly') {
-                        console.log("Monthly")
                         let category = {};
                         let now = new Date();
                         let nowMonth = now.getMonth();
@@ -327,7 +322,6 @@ export async function fetchSchedule(uid, country, university, setter) {
                 for (let i = 0; i < episodicData.length; i++) {
                     let startDate = new Date(episodicData[i].startDate.seconds * 1000);
                     let endDate = new Date(episodicData[i].endDate.seconds * 1000);
-                    console.log('episodic')
                     let now = new Date();
                     let category = {};
                     let cat = await episodicData[i].category.get()

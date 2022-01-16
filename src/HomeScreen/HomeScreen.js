@@ -56,9 +56,7 @@ export default function HomeScreen({route, navigation}) {
         );*/
         setSchedule(createElement(scheduleProps));
         const timer = setInterval(async () => {
-            console.log("updated")
             const schedule = await fetchSchedule(accountId, country, university, setterFunc)
-            console.log("schedule")
             //setterFunc(schedule);
         }, 6 * 1000)
 
