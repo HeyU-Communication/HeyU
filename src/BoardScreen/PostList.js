@@ -77,7 +77,7 @@ const PostList = () => {
         data={DATA}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        scrollEnabled="false"
+        scrollEnabled={false}
       />
       <View>
         <Text></Text>

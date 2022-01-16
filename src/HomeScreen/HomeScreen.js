@@ -1,10 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, BackHandler, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, BackHandler, ScrollView, Alert, TextInput } from 'react-native';
 import months from '../components/months';
 import days from '../components/days';
 import * as Storage from '../components/Storage'
 import Event from './Event';
-import { fetchSchedule } from '../components/FirebaseFunction';
+import AddTask from './AddTask';
+import { dbService, fetchSchedule } from '../components/FirebaseFunction';
+import Modal from "react-native-modal";
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import { getCalendarDateString } from 'react-native-calendars/src/services';
+import { assertLiteral } from '@babel/types';
 
 const setItem = Storage.default.setItem;
 const getItem = Storage.default.getItem;
@@ -15,44 +20,57 @@ const height = Dimensions.get("window").height;
 export default function HomeScreen({route, navigation}) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
+    let [addOpen, setAddOpen] = useState(false);
 
     const { accountId, country, university, scheduleProps, /*authProps*/ } = route.params;
 
     const setterFunc = (schedule) => {
+        if (schedule === undefined || schedule === null) {
+            setSchedule(createElement([]));
+        }
         setSchedule(createElement(schedule))
     }
 
 
     useEffect(() => {
         const backAction = () => {
-            Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
-              {
-                text: "아니요",
-                onPress: () => null,
-                style: "cancel"
-              },
-              { text: "네", onPress: () => BackHandler.exitApp() }
-            ]);
-            return true;
+            if (addOpen) {
+                setAddOpen(false);
+                Alert.alert("Ssibal")
+            }
+            else {
+                Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
+                    {
+                      text: "아니요",
+                      onPress: () => null,
+                      style: "cancel"
+                    },
+                    { text: "네", onPress: () => BackHandler.exitApp() }
+                ]);
+                return true;
+            }
           };
-          const backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            backAction
-          );
+        /*const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+        );*/
         setSchedule(createElement(scheduleProps));
         const timer = setInterval(async () => {
             console.log("updated")
-            const schedule = await fetchSchedule(accountId, country, university);
-            setterFunc(schedule);
-        }, 60 * 1000)
+            const schedule = await fetchSchedule(accountId, country, university, setterFunc)
+            console.log("schedule")
+            //setterFunc(schedule);
+        }, 6 * 1000)
 
         return () => {
             clearInterval(timer);
-            backHandler.remove();
+            //backHandler.remove();
         }
     }, [])
 
-    const onPressAddTask = () => {};
+    const onPressAddTask = () => {
+        setAddOpen(true);
+    };
 
     const createElement = (scheduleData) => {
         const finalData = [[],[],[],[],[],[],[]]
@@ -61,7 +79,7 @@ export default function HomeScreen({route, navigation}) {
             const dailyData = scheduleData[i];
             for (let j = 0; j < dailyData.length; j++) {
                 const isNow = checkNow(i, dailyData[j]['time'][0], dailyData[j]['time'][1]);
-                const category = dailyData[j].isPersonal ? 'Personal' : dailyData[j].moduleData.moduleCode
+                const category = dailyData[j]['category'].name
                 dailySchedule.push(<Event current={isNow} name={dailyData[j]['title']} venue={dailyData[j]['venue']} startTime={dailyData[j]['time'][0]} endTime={dailyData[j]['time'][1]} category={category}/>)
             }
             finalData[i] = dailySchedule;
@@ -111,6 +129,7 @@ export default function HomeScreen({route, navigation}) {
 
     return (
         <View>
+            <AddTask isVisible={addOpen} closeModal={() => setAddOpen(false)} university={university} country={country} accountId={accountId} />
             <Text style={styles.date}>{date}{date % 10 === 1 ? "st" : date % 10 === 2 ? 'nd' : date % 10 === 3 ? 'rd' : 'th'} {months[month]} {year}</Text>
             <Text style={styles.scheduleText}>Schedule</Text>
             <TouchableOpacity style={styles.addTask} onPress={onPressAddTask}><Text style={styles.addTaskText}>+ Add Tasks</Text></TouchableOpacity>
@@ -217,7 +236,7 @@ const styles = StyleSheet.create({
         height: height,
         width: 7,
         left: '5%',
-        backgroundColor: '#FFDE00',
+        backgroundColor: '#F5DF4D',
         top: 205,
         zIndex: 1,
     },
@@ -249,6 +268,61 @@ const styles = StyleSheet.create({
         width: '100%',
         height: height - 240,
         zIndex: 3, 
+    },
+    addTaskDetails: {
+        left: 20,
+        fontFamily: 'Content',
+        fontSize: 16,
+        marginTop: 10,
+    },
+    eventTitle: {
+        color: 'black',
+        fontFamily: 'Content',
+        fontSize: 12,
+        left: 10,
+        backgroundColor: '#E1E1E1',
+        padding: 0,
+        height: 40,
+        width: (width * 0.85) - 10,
+        paddingLeft: 20,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
+    },
+    eventDates: {
+        fontFamily: 'Content',
+        left: 10,
+        marginTop: 10,
+    },
+    startDateButton: {
+        backgroundColor: '#E1E1E1',
+        height: 30,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        borderTopRightRadius: 15,
+        borderTopLeftRadius: 15,
+        marginTop: 10,
+        marginLeft: 20,
+        width: 150,
+    },
+    startDateButtonText: {
+        lineHeight: 30,
+        textAlign: 'center'
+    },
+    endDateButton: {
+        marginTop: 10,
+        width: 150,
+        backgroundColor: '#E1E1E1',
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        borderTopRightRadius: 15,
+        borderTopLeftRadius: 15,
+        height: 30,
+    },
+    endDateButtonText: {
+        lineHeight: 30,
+        textAlign: 'center'
     }
 })
 
