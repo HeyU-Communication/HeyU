@@ -10,6 +10,7 @@ import Modal from "react-native-modal";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { getCalendarDateString } from 'react-native-calendars/src/services';
 import { assertLiteral } from '@babel/types';
+import { useFocusEffect } from '@react-navigation/native';
 
 const setItem = Storage.default.setItem;
 const getItem = Storage.default.getItem;
@@ -21,7 +22,8 @@ export default function HomeScreen({route, navigation}) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
     let [addOpen, setAddOpen] = useState(false);
-
+    let [isFirstFocus, setIsFirstFocus] = useState(true);
+    console.log(route.params)
     const { accountId, country, university, scheduleProps, /*authProps*/ } = route.params;
 
     const setterFunc = (schedule) => {
@@ -31,8 +33,7 @@ export default function HomeScreen({route, navigation}) {
         setSchedule(createElement(schedule))
     }
 
-
-    useEffect(() => {
+    useFocusEffect(React.useCallback(() => {
         const backAction = () => {
             if (addOpen) {
                 setAddOpen(false);
@@ -50,10 +51,44 @@ export default function HomeScreen({route, navigation}) {
                 return true;
             }
           };
-        /*const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
-        backAction
-        );*/
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress", backAction
+        );
+        setSchedule(createElement(scheduleProps));
+        const timer = setInterval(async () => {
+            const schedule = await fetchSchedule(accountId, country, university, setterFunc)
+            //setterFunc(schedule);
+        }, 6 * 1000)
+        return () => {
+            clearInterval(timer);
+            backHandler.remove();
+        }
+    }, []))
+    
+
+
+    /*useEffect(() => {
+        const backAction = () => {
+            if (addOpen) {
+                setAddOpen(false);
+                Alert.alert("Ssibal")
+            }
+            else {
+                Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
+                    {
+                      text: "아니요",
+                      onPress: () => null,
+                      style: "cancel"
+                    },
+                    { text: "네", onPress: () => BackHandler.exitApp() }
+                ]);
+                return true;
+            }
+          };
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress", backAction
+        );
+        
         setSchedule(createElement(scheduleProps));
         const timer = setInterval(async () => {
             const schedule = await fetchSchedule(accountId, country, university, setterFunc)
@@ -64,7 +99,7 @@ export default function HomeScreen({route, navigation}) {
             clearInterval(timer);
             //backHandler.remove();
         }
-    }, [])
+    }, []); */
 
     const onPressAddTask = () => {
         setAddOpen(true);

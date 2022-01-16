@@ -342,6 +342,7 @@ export default function AddTask(props) {
         startDate.setMinutes(parseInt(startMinute));
         endDate.setHours(parseInt(endHour));
         endDate.setMinutes(parseInt(endMinute));
+        props.closeModal()
         if (isRepChosen()) {
             dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('regular').add({
                 category: category == "" ? dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc('noCategory') : dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc(categoryRawData[category]),

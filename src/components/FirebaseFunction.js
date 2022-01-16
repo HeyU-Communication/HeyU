@@ -53,6 +53,13 @@ export async function fetchSchedule(uid, country, university, setter) {
     }
 
     const sortEachDays = (a, b) => {
+        if (a.time[0] == '전 날') {
+            return -1;
+        }
+        else if (b.time[0] == '전 날') {
+            return 1;
+        }
+
         if (a.time[0] > b.time[0]) {
             return 1;
         }
@@ -157,7 +164,7 @@ export async function fetchSchedule(uid, country, university, setter) {
                         let cat = await regularData[i].category.get()
                         category = cat.data();
                         for (let j = 0; j < 7; j++) {
-                            if (tempStart.getDay() <= now.getDay() || tempEnd.getDay() >= now.getDay()) {
+                            if (((tempStart.getDay() >= tempEnd.getDay()) && (tempStart.getDay() <= now.getDay() && tempEnd.getDay() >= now.getDay())) || ((tempStart.getDay() < tempEnd.getDay()) && (tempStart.getDay() <= now.getDay() && tempEnd.getDay() >= now.getDay()))) {
                                 let time = [];
 
                                 if (now.getDay() == tempStart.getDay()) {
