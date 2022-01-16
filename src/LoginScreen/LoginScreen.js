@@ -106,7 +106,7 @@ export default function LoginScreen({route, navigation}) {
         if (passwordFailed || emailFailed || emailFormatFailed || otherFailed) {
             return;
         }
-        //setLoading(true)
+        setLoading(true)
         authService.signInWithEmailAndPassword(email, pw).then(async (userCredential) => {
             const user = userCredential.user
             
