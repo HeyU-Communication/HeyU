@@ -40,7 +40,7 @@ export default function HomeScreen({route, navigation}) {
                 Alert.alert("Ssibal")
             }
             else {
-                Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
+                Alert.alert("잠깐!", "정말 앱을 종료하시겠습니까?", [
                     {
                       text: "아니요",
                       onPress: () => null,
@@ -64,42 +64,6 @@ export default function HomeScreen({route, navigation}) {
             backHandler.remove();
         }
     }, []))
-    
-
-
-    /*useEffect(() => {
-        const backAction = () => {
-            if (addOpen) {
-                setAddOpen(false);
-                Alert.alert("Ssibal")
-            }
-            else {
-                Alert.alert("잠깐!", "정말 앱을 종료하실건가요?", [
-                    {
-                      text: "아니요",
-                      onPress: () => null,
-                      style: "cancel"
-                    },
-                    { text: "네", onPress: () => BackHandler.exitApp() }
-                ]);
-                return true;
-            }
-          };
-        const backHandler = BackHandler.addEventListener(
-            "hardwareBackPress", backAction
-        );
-        
-        setSchedule(createElement(scheduleProps));
-        const timer = setInterval(async () => {
-            const schedule = await fetchSchedule(accountId, country, university, setterFunc)
-            //setterFunc(schedule);
-        }, 6 * 1000)
-
-        return () => {
-            clearInterval(timer);
-            //backHandler.remove();
-        }
-    }, []); */
 
     const onPressAddTask = () => {
         setAddOpen(true);

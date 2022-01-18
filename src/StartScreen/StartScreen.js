@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Dimensions, Image, Alert } from 'react-native';
-import { fetchProfile, fetchSchedule, signIn } from '../components/FirebaseFunction';
+import { authService, dbService, fetchSchedule, signIn } from '../components/FirebaseFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getJSONData, getStringData } from '../components/StorageFunctions';
+import { processEpisodicFromToday, processRegularFromToday, sortIntoDays, sortEachDays } from '../components/TaskProcess'; 
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -11,7 +13,7 @@ export default function StartScreen({ navigation }) {
   const [loaded, setLoaded] = useState(false);
   const [schedule, setSchedule] = useState([[], [], [], [], [], [], []]);
 
-    useEffect(() =>{
+    useEffect(async () => {
         //const myAuth = await fetchProfile();
         function navigateTo(schedule) {
             navigation.navigate("MainScreens", {
@@ -25,22 +27,86 @@ export default function StartScreen({ navigation }) {
                 }
             });
         }
-
-        const getData = async () => {
+        const user = authService.currentUser;
+        if (user) {
+            dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
+                const data = snapshot.data();
+                const setter = (myScheduleData) => {
+                    setLoaded(true);
+                    navigation.navigate("MainScreens", {
+                        screen: 'Home',
+                        params: {
+                            accountId: data.uid,
+                            country: data.country,
+                            university: data.university,
+                            scheduleProps: myScheduleData,
+                        }
+                    })
+                }
+                await fetchSchedule(data.uid, data.country, data.university, setter);
+            })
+        }
+        else {
             try {
-                const email = await AsyncStorage.getItem('email');
-                const pw = await AsyncStorage.getItem('pw');
-                const country = await AsyncStorage.getItem('country');
-                const school = await AsyncStorage.getItem("school");
+                const autoLogin = await getStringData('autologin')
+                const email = await getStringData('email')
+                const pw = await getStringData('password')
 
-                console.log(email);
+                console.log(autoLogin)
+                console.log(email)
                 console.log(pw);
-                console.log(country);
-                console.log(school);
 
-                if (email !== null && pw !== null) {
-                    signIn(email, pw, country, school, navigateTo, () => {
-                        navigation.navigate("LoginScreen");
+                if (!autoLogin) {
+                    navigation.navigate('LoginScreen');
+                }
+                else if (email !== null && pw !== null) {
+                    authService.signInWithEmailAndPassword(email, pw).then(async (userCredential) => {
+                        const user = userCredential.user
+                        
+                        if (! user.emailVerified) {
+                            Alert.alert('로그인 실패', '계정의 이메일이 인증되지 않았어요. 이메일을 인증해주세요. ')
+                            navigation.navigate('LoginScreen');
+                        }
+                        else {
+                            dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
+                                const data = snapshot.data();
+                                let nowDate = new Date();
+                                dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
+                                    const regularData = [];
+                                    querySnapshot.forEach(doc => {
+                                        regularData.push(doc.data());
+                                    })
+                                    dbService.collection('profile').doc(data.country).collection(data.university).doc(data.uid).collection('episodic').where('endDate', '>', nowDate).onSnapshot(async (querySnapshot2) => {
+                                        const episodicData = [];
+                                        querySnapshot2.forEach(doc => {
+                                            const tempData = doc.data();
+                                            episodicData.push(tempData);
+                                        })
+                
+                                        let myScheduleData = [];
+                                        //Process regular schedules
+                                        const regData = await processRegularFromToday(regularData);
+                                        //Process epidosic schedules
+                                        const epiData = await processEpisodicFromToday(episodicData);
+                                        myScheduleData = regData.concat(epiData)
+                                        myScheduleData = sortIntoDays(myScheduleData);
+                                        myScheduleData = sortEachDays(myScheduleData);
+                                        navigation.navigate("MainScreens", {
+                                            screen: 'Home',
+                                            params: {
+                                                accountId: data.uid,
+                                                country: data.country,
+                                                university: data.university,
+                                                scheduleProps: myScheduleData,
+                                            }
+                                        })
+                                    })
+                                })
+                            });
+                        }
+                    }).catch(err => {
+                        Alert.alert("자동 로그인 실패", err.message)
+                        navigation.navigate('LoginScreen')
                     })
                 }
                 else {
@@ -52,9 +118,7 @@ export default function StartScreen({ navigation }) {
                 navigation.navigate("LoginScreen")
             }
         }
-
-        getData();
-    },)
+    }, [])
 
   return (
     <View style={styles.view}>
