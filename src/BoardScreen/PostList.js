@@ -1,62 +1,157 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   FlatList,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
+  NativeModules,
+  Alert,
+  Keyboard,
 } from "react-native";
 
 const DATA = [
   {
     id: "1",
-    title: "첫 번째 게시글",
+    title: "ㄱ1초라도안보이면",
     view: 10,
   },
   {
     id: "2",
-    title: "두 번째 게시글",
+    title: "ㄱ이렇게초조한데",
     view: 10,
   },
   {
     id: "3",
-    title: "세 번째 게시글",
+    title: "ㄱ3초는 어떻게 기다려",
     view: 10,
   },
   {
     id: "4",
-    title: "네 번째 게시글",
+    title: "ㄱ사랑해 널 사랑해",
     view: 10,
   },
   {
     id: "5",
-    title: "다섯 번째 게시글",
+    title: "ㄱ오늘은 말할거야",
     view: 10,
   },
   {
     id: "6",
-    title: "여섯 번째 게시글",
+    title: "ㄱ60억 지구에서 널 만난건",
     view: 10,
   },
   {
     id: "7",
-    title: "일곱 번째 게시글",
+    title: "ㄱ7 럭키야",
     view: 10,
   },
   {
     id: "8",
-    title: "여덟 번째 게시글",
+    title: "ㄱ팔딱팔딱 뛰는 가슴",
     view: 10,
   },
   {
     id: "9",
-    title: "아홉 번째 게시글",
+    title: "ㄱ구해줘 오 내마음",
     view: 10,
   },
   {
     id: "10",
-    title: "열 번째 게시글",
+    title: "ㄱ10년이 가도 난 너를 사랑해~",
+    view: 10,
+  },
+  {
+    id: "11",
+    title: "ㄱJust like TT",
+    view: 10,
+  },
+  {
+    id: "12",
+    title: "ㄱIm like TT",
+    view: 10,
+  },
+  {
+    id: "13",
+    title: "ㄱ이런 내 맘 모르고",
+    view: 10,
+  },
+  {
+    id: "14",
+    title: "ㄱ너무해 너무해",
+    view: 10,
+  },
+  {
+    id: "15",
+    title: "ㄱTell me that you'd be my baby",
+    view: 10,
+  },
+  {
+    id: "16",
+    title: "혹시 이런 내 맘 알까요",
+    view: 10,
+  },
+  {
+    id: "17",
+    title: "사라져버리면 안돼요",
+    view: 10,
+  },
+  {
+    id: "18",
+    title: "이번에는 정말 꼭꼭",
+    view: 10,
+  },
+  {
+    id: "19",
+    title: "내가 먼저 talk talk",
+    view: 10,
+  },
+  {
+    id: "20",
+    title: "다짐뿐인 걸 매번 다짐뿐인 걸",
+    view: 10,
+  },
+  {
+    id: "21",
+    title: "이렇게 난 또",
+    view: 10,
+  },
+  {
+    id: "22",
+    title: "잊지 못하고",
+    view: 10,
+  },
+  {
+    id: "23",
+    title: "내 가슴 속에 끝나지 않을",
+    view: 10,
+  },
+  {
+    id: "24",
+    title: "이야길 쓰고 있어",
+    view: 10,
+  },
+  {
+    id: "25",
+    title: "널 붙잡을게",
+    view: 10,
+  },
+  {
+    id: "26",
+    title: "잊지 않을게",
+    view: 10,
+  },
+  {
+    id: "27",
+    title: "끝나지 않을",
+    view: 10,
+  },
+  {
+    id: "28",
+    title: "우리 이야기 속에서",
     view: 10,
   },
 ];
@@ -68,24 +163,221 @@ const Item = ({ title, view }) => (
   </View>
 );
 
+const { StatusBarManager } = NativeModules;
+
 const PostList = () => {
   const renderItem = ({ item }) => <Item title={item.title} view={item.view} />;
+
+  const [articleRaw, setArticleRaw] = useState(DATA);
+
+  const [value, onChangeText] = useState("");
+  const [pageNumber, changePageNumber] = useState(0);
+  const [sortedData, changeSortedData] = useState(DATA.slice(0, 10));
+  const [searchPageNumber, changeSearchPageNumber] = useState(0);
+  const [searchedData, changeSearchedData] = useState([]);
+  const [searchingMode, setSearchingMode] = useState(false);
+  const [displayedPageNumber, changeDisplayedPageNumber] = useState(0);
+
+  const onPress = () => {
+    changeSearchPageNumber(0);
+    changeDisplayedPageNumber(0);
+    if (value.length > 0) {
+      setSearchingMode(true);
+      const temp = filterPost(value);
+      changeSearchedData(temp);
+      changeSortedData(temp.slice(0, 10));
+    } else {
+      changeSearchedData([]);
+      setSearchingMode(false);
+      changeSortedData(articleRaw.slice(0, 10));
+    }
+    Keyboard.dismiss();
+  };
+
+  const onPressMostPreviousPage = () => {
+    changeDisplayedPageNumber(0);
+    if (searchingMode) {
+      changeSearchPageNumber(0);
+      changeSortedData(searchedData.slice(0, 10));
+    } else {
+      changePageNumber(0);
+      changeSortedData(articleRaw.slice(0, 10));
+    }
+  };
+
+  const onPressPreviousPage = () => {
+    if (displayedPageNumber > 0) {
+      changeDisplayedPageNumber(displayedPageNumber - 1);
+    }
+    if (searchingMode) {
+      if (searchPageNumber > 0) {
+        const temp = searchPageNumber - 1;
+        changeSearchPageNumber(temp);
+        changeSortedData(searchedData.slice(temp * 10, temp * 10 + 10));
+      } else {
+        Alert.alert("첫 페이지입니다.");
+      }
+    } else {
+      if (pageNumber > 0) {
+        const temp = pageNumber - 1;
+        changePageNumber(temp);
+        changeSortedData(articleRaw.slice(temp * 10, temp * 10 + 10));
+      } else {
+        Alert.alert("첫 페이지입니다.");
+      }
+    }
+  };
+
+  const onPressCurrentPage = () => {
+    if (searchingMode) {
+      const temp = searchedData.slice(
+        searchPageNumber * 10,
+        searchPageNumber * 10 + 10
+      );
+      changeSortedData(temp);
+      changeDisplayedPageNumber(temp);
+    } else {
+      if (pageNumber > 0) {
+        changeSortedData(
+          articleRaw.slice(pageNumber * 10, pageNumber * 10 + 10)
+        );
+      }
+    }
+  };
+
+  const onPressNextPage = () => {
+    if (searchingMode) {
+      if (searchPageNumber < Math.ceil(searchedData.length / 10 - 1)) {
+        const temp = searchPageNumber + 1;
+        changeSearchPageNumber(temp);
+        changeDisplayedPageNumber(temp);
+        changeSortedData(searchedData.slice(temp * 10, temp * 10 + 10));
+      } else {
+        Alert.alert("마지막 페이지입니다.");
+      }
+    } else {
+      if (pageNumber < Math.ceil(articleRaw.length / 10 - 1)) {
+        const temp = pageNumber + 1;
+        changePageNumber(temp);
+        changeDisplayedPageNumber(temp);
+        changeSortedData(articleRaw.slice(temp * 10, temp * 10 + 10));
+      } else {
+        Alert.alert("마지막 페이지입니다.");
+      }
+    }
+  };
+
+  const onPressMostNextPage = () => {
+    if (searchingMode) {
+      const temp = Math.ceil(searchedData.length / 10 - 1);
+      changeSearchPageNumber(temp);
+      changeDisplayedPageNumber(temp);
+      changeSortedData(searchedData.slice(temp * 10, temp * 10 + 10));
+    } else {
+      const temp = Math.ceil(articleRaw.length / 10 - 1);
+      changePageNumber(temp);
+      changeDisplayedPageNumber(temp);
+      changeSortedData(articleRaw.slice(temp * 10, temp * 10 + 10));
+    }
+  };
+
+  function filterPost(query) {
+    return articleRaw.filter((el) => {
+      return (
+        el.title
+          .toString()
+          .toLowerCase()
+          .indexOf(query.toString().toLowerCase()) >= 0
+      );
+    });
+  }
+
+  useEffect(() => {
+    Platform.OS == "ios"
+      ? StatusBarManager.getHeight((statusBarFrameData) => {
+          setStatusBarHeight(statusBarFrameData.height);
+        })
+      : null;
+  }, []);
+
+  const [statusBarHeight, setStatusBarHeight] = useState(0);
 
   return (
     <View style={styles.Board}>
       <FlatList
-        data={DATA}
+        data={sortedData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
       />
-      <View>
-        <Text></Text>
+      <View style={styles.PageNumber}>
+        <TouchableOpacity>
+          <Text style={styles.PageChange} onPress={onPressMostPreviousPage}>
+            {"<<"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            style={{
+              padding: 15,
+              color: "#000000",
+              fontSize: 15,
+              color: displayedPageNumber === 0 ? "transparent" : "#000000",
+            }}
+            onPress={onPressPreviousPage}
+          >
+            {displayedPageNumber}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.CurrentPage} onPress={onPressCurrentPage}>
+            {displayedPageNumber + 1}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            style={{
+              padding: 15,
+              color: "#000000",
+              fontSize: 15,
+              color:
+                (searchingMode &&
+                  searchPageNumber >=
+                    Math.ceil(searchedData.length / 10 - 1)) ||
+                pageNumber >= Math.ceil(articleRaw.length / 10 - 1)
+                  ? "transparent"
+                  : "#000000",
+            }}
+            onPress={onPressNextPage}
+          >
+            {displayedPageNumber + 2}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.PageChange} onPress={onPressMostNextPage}>
+            {">>"}
+          </Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.PostSearch}>
-        <Text style={styles.PostSearchBox}></Text>
-        <Text style={styles.PostSearchIcon}>Search</Text>
-      </View>
+      <KeyboardAvoidingView
+        behavior={"padding"}
+        keyboardVerticalOffset={statusBarHeight + 140}
+      >
+        <View style={styles.PostSearch}>
+          <TextInput
+            style={styles.PostSearchBox}
+            autoCorrect={false}
+            autoCapitalize="none"
+            onChangeText={(text) => onChangeText(text)}
+            value={value}
+            placeholder={"검색어를 입력하세요"}
+            placeholderTextColor={"grey"}
+          />
+          <TouchableOpacity style={styles.PostSearchIconBox} onPress={onPress}>
+            <Text style={styles.PostSearchIcon}>검색</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -118,6 +410,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    top: 10,
   },
   PostSearchBox: {
     position: "relative",
@@ -126,12 +419,59 @@ const styles = StyleSheet.create({
     borderColor: "#FFDE00",
     width: "70%",
     height: 30,
+    color: "#A1A1A1",
+    paddingLeft: 10,
+  },
+  PostSearchIconBox: {
+    position: "relative",
+    backgroundColor: "#FFDE00",
+    width: "20%",
+    height: 30,
   },
   PostSearchIcon: {
     position: "relative",
-    backgroundColor: "#FFDE00",
-    width: "15%",
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textAlign: "center",
+    textAlignVertical: "center",
+    fontSize: 16,
     height: 30,
+    lineHeight: 30,
+  },
+  PageNumber: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  PageChange: {
+    padding: 15,
+    color: "#000000",
+    fontSize: 15,
+  },
+  PreviousPage: {
+    padding: 15,
+    color: "#000000",
+    fontSize: 15,
+  },
+  CurrentPage: {
+    height: 40,
+    width: 40,
+    textAlign: "center",
+    lineHeight: 40,
+    color: "#000000",
+    fontSize: 15,
+    backgroundColor: "#FFDF00",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "transparent",
+    overflow: "hidden",
+    margin: 5,
+  },
+  NextPage: {
+    padding: 15,
+    color: "#000000",
+    fontSize: 15,
   },
 });
 
