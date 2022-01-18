@@ -1,7 +1,8 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Dimensions, Image } from "react-native";
-import { fetchProfile, fetchSchedule } from "../components/FirebaseFunction";
+import { StatusBar } from 'expo-status-bar';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View, Dimensions, Image, Alert } from 'react-native';
+import { fetchProfile, fetchSchedule, signIn } from '../components/FirebaseFunction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -10,28 +11,50 @@ export default function StartScreen({ navigation }) {
   const [loaded, setLoaded] = useState(false);
   const [schedule, setSchedule] = useState([[], [], [], [], [], [], []]);
 
-  useEffect(() => {
-    //const myAuth = await fetchProfile();
+    useEffect(() =>{
+        //const myAuth = await fetchProfile();
+        function navigateTo(schedule) {
+            navigation.navigate("MainScreens", {
+                screen: 'Home',
+                params: {
+                    accountId: accountId,
+                    country: country,
+                    school: school,
+                    scheduleProps: schedule,
+                    //authProps: myAuth
+                }
+            });
+        }
 
-    let accountId = "testUser";
-    let country = "Singapore";
-    let school = "NUS";
+        const getData = async () => {
+            try {
+                const email = await AsyncStorage.getItem('email');
+                const pw = await AsyncStorage.getItem('pw');
+                const country = await AsyncStorage.getItem('country');
+                const school = await AsyncStorage.getItem("school");
 
-    function navigateTo(schedule) {
-      navigation.navigate("MainScreens", {
-        screen: "Home",
-        params: {
-          accountId: accountId,
-          country: country,
-          school: school,
-          scheduleProps: schedule,
-          //authProps: myAuth
-        },
-      });
-    }
-    navigateTo([]);
-    //fetchSchedule(accountId, country, school, navigateTo);
-  });
+                console.log(email);
+                console.log(pw);
+                console.log(country);
+                console.log(school);
+
+                if (email !== null && pw !== null) {
+                    signIn(email, pw, country, school, navigateTo, () => {
+                        navigation.navigate("LoginScreen");
+                    })
+                }
+                else {
+                    navigation.navigate("LoginScreen")
+                }
+            }
+            catch (e) {
+                console.log(e)
+                navigation.navigate("LoginScreen")
+            }
+        }
+
+        getData();
+    },)
 
   return (
     <View style={styles.view}>

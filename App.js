@@ -1,23 +1,18 @@
-import React from "react";
-import StartScreen from "./src/StartScreen/StartScreen";
-import HomeScreen from "./src/HomeScreen/HomeScreen";
-import ScheduleScreen from "./src/ScheduleScreen/ScheduleScreen";
-import MatesScreen from "./src/MatesScreen/MatesScreen";
+import React from 'react';
+import StartScreen from './src/StartScreen/StartScreen';
+import HomeScreen from './src/HomeScreen/HomeScreen';
+import ScheduleScreen from './src/ScheduleScreen/ScheduleScreen';
+import MatesScreen from './src/MatesScreen/MatesScreen';
 import BoardScreen from "./src/BoardScreen/BoardScreen";
-import MyTabBar from "./src/components/MyTabBar";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  View,
-  Dimensions,
-  StyleSheet,
-  Image,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
+import LoginScreen from './src/LoginScreen/LoginScreen';
+import RegistrationScreen from './src/LoginScreen/RegistrationScreen';
+import FindCredentialScreen from './src/LoginScreen/FindCredentialScreen';
+import MyTabBar from './src/components/MyTabBar';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView, } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from "expo-font";
 import firebaseConfig from "./src/components/FirebaseConfig";
 import * as firebase from "firebase";
@@ -49,8 +44,8 @@ function MainScreens() {
       </View>
       <Tab.Navigator
         name="MainScreens"
-        initialRouteName="HomeScreen"
-        backBehavior="history"
+        initialRouteName="Home"
+        backBehavior="firstRoute"
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <MyTabBar {...props} />}
       >
@@ -65,12 +60,15 @@ function MainScreens() {
 
 export default function App() {
   const [loaded] = useFonts({
-    Acme: require("./src/components/assets/fonts/Acme-Regular.ttf"),
-    AlefBold: require("./src/components/assets/fonts/Alef-Bold.ttf"),
-    Alef: require("./src/components/assets/fonts/Alef-Regular.ttf"),
-    Content: require("./src/components/assets/fonts/Content-Regular.ttf"),
-    ContentBold: require("./src/components/assets/fonts/Content-Bold.ttf"),
-    RhodiumLibre: require("./src/components/assets/fonts/RhodiumLibre-Regular.ttf"),
+    Acme: require('./src/components/assets/fonts/Acme-Regular.ttf'),
+    AlefBold: require('./src/components/assets/fonts/Alef-Bold.ttf'),
+    Alef: require('./src/components/assets/fonts/Alef-Regular.ttf'),
+    Content: require('./src/components/assets/fonts/Content-Regular.ttf'),
+    ContentBold: require('./src/components/assets/fonts/Content-Bold.ttf'),
+    RhodiumLibre: require('./src/components/assets/fonts/RhodiumLibre-Regular.ttf'),
+    AbhayaLibre: require('./src/components/assets/fonts/AbhayaLibre-Regular.ttf'),
+    AbhayaLibre_ExtraBold: require('./src/components/assets/fonts/AbhayaLibre-ExtraBold.ttf'),
+    Candal: require("./src/components/assets/fonts/Candal-Regular.ttf")
   });
 
   if (!loaded) {
@@ -78,12 +76,11 @@ export default function App() {
   } else {
     return (
       <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="StartScreen"
-          backBehavior="none"
-          screenOptions={{ headerShown: false }}
-        >
-          <Stack.Screen name="StartScreen" component={StartScreen} />
+        <Stack.Navigator initialRouteName="StartScreen" backBehavior="none" screenOptions={{ headerShown: false, }}>
+          <Stack.Screen name="StartScreen" component={StartScreen}/>
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
+          <Stack.Screen name="FindCredentialScreen" component={FindCredentialScreen} />
           <Stack.Screen name="MainScreens" component={MainScreens} />
         </Stack.Navigator>
       </NavigationContainer>

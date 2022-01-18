@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -16,77 +16,77 @@ import {
 const DATA = [
   {
     id: "1",
-    title: "ㄱ1초라도안보이면",
+    title: "첫번째 게시글입니다",
     view: 10,
   },
   {
     id: "2",
-    title: "ㄱ이렇게초조한데",
+    title: "두번째 게시글입니다",
     view: 10,
   },
   {
     id: "3",
-    title: "ㄱ3초는 어떻게 기다려",
+    title: "다들 오늘 어떤 하루를 보내셨나요?",
     view: 10,
   },
   {
     id: "4",
-    title: "ㄱ사랑해 널 사랑해",
+    title: "강의 듣기 싫어요",
     view: 10,
   },
   {
     id: "5",
-    title: "ㄱ오늘은 말할거야",
+    title: "교수님 죄송합니다",
     view: 10,
   },
   {
     id: "6",
-    title: "ㄱ60억 지구에서 널 만난건",
+    title: "이런 코드를 썼기에",
     view: 10,
   },
   {
     id: "7",
-    title: "ㄱ7 럭키야",
+    title: "제목제목제목제목",
     view: 10,
   },
   {
     id: "8",
-    title: "ㄱ팔딱팔딱 뛰는 가슴",
+    title: "팔딱팔딱 뛰는 가슴",
     view: 10,
   },
   {
     id: "9",
-    title: "ㄱ구해줘 오 내마음",
+    title: "구해줘 오 내마음",
     view: 10,
   },
   {
     id: "10",
-    title: "ㄱ10년이 가도 난 너를 사랑해~",
+    title: "10년이 가도 난 너를 사랑해~",
     view: 10,
   },
   {
     id: "11",
-    title: "ㄱJust like TT",
+    title: "Just like TT",
     view: 10,
   },
   {
     id: "12",
-    title: "ㄱIm like TT",
+    title: "Im like TT",
     view: 10,
   },
   {
     id: "13",
-    title: "ㄱ이런 내 맘 모르고",
+    title: "이런 내 맘 모르고",
     view: 10,
   },
   {
     id: "14",
-    title: "ㄱ너무해 너무해",
+    title: "너무해 너무해",
     view: 10,
   },
   {
     id: "15",
-    title: "ㄱTell me that you'd be my baby",
+    title: "Tell me that you'd be my baby",
     view: 10,
   },
   {

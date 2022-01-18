@@ -13,16 +13,16 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 export default function BoardScreen({ navigation }) {
+
+  const onPressBoardTitle = () => {};
   const onPressMyPost = () => {};
   const onPressPopular = () => {};
   const onPressTitle = () => {};
 
-  function refreshPage() {}
-
   return (
     <View>
-      <View>
-        <TouchableOpacity onPress={refreshPage}>
+      <View style={styles.BoardTitleBar}>
+        <TouchableOpacity onPress={onPressBoardTitle}>
           <View style={styles.Title}>
             <Text id={"Title"} style={styles.TitleLeft}>
               비밀 게시판
