@@ -1,11 +1,12 @@
 import React, {useState, useEffect } from 'react';
-import { StyleSheet, Text, Image, View, Dimensions, TouchableOpacity, Async, ScrollView, Alert, TextInput, Touchable, DrawerLayoutAndroidBase } from 'react-native';
-import { authService, dbService } from '../components/FirebaseFunction';
+import { StyleSheet, Text, Image, View, Dimensions, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { authService, dbService, fetchSchedule } from '../components/FirebaseFunction';
 import { CircleSnail } from 'react-native-progress';
-import days from '../components/days';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
-import { CommonActions } from '@react-navigation/native';
+import { processEpisodicFromToday, processRegularFromToday, sortEachDays, sortIntoDays } from '../components/TaskProcess';
+import { storeJSON, storeString } from '../components/StorageFunctions';
+import Checkbox from 'expo-checkbox';
 
 export default function LoginScreen({route, navigation}) {
     const [email, changeEmail] = useState("")
@@ -15,92 +16,29 @@ export default function LoginScreen({route, navigation}) {
     const [emailFormatFailed, setEmailFormatFailed] = useState(false);
     const [otherFailed, setOtherFailed] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [autoLogin, setAutoLogin] = useState(false);
 
     useEffect(() => {
         const user = authService.currentUser;
         if (user) {
-            
+            setLoading(true)
+            dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
+                const data = snapshot.data();
+                const setter = (myScheduleData) => {
+                    navigation.navigate("MainScreens", {
+                        screen: 'Home',
+                        params: {
+                            accountId: data.uid,
+                            country: data.country,
+                            university: data.university,
+                            scheduleProps: myScheduleData,
+                        }
+                    })
+                }
+                await fetchSchedule(data.uid, data.country, data.university, setter);
+            })
         }
     }, [])
-
-    const sortIntoDays = (scheduleData) => {
-        const finalData = [[],[],[],[],[],[],[]]
-        for (let i = 0; i < scheduleData.length; i++) {
-            finalData[scheduleData[i].day].push(scheduleData[i]);
-        }
-        return finalData;
-    }
-
-    const sortEachDays = (a, b) => {
-        if (a.time[0] == '전 날') {
-            return -1;
-        }
-        else if (b.time[0] == '전 날') {
-            return 1;
-        }
-
-        if (a.time[0] > b.time[0]) {
-            return 1;
-        }
-        else if (a.time[0] < b.time[0]) {
-            return -1;
-        }
-        else {
-            if (a.time[1] > b.time[1]) {
-                return 1;
-            }
-            else if (a.time[1] < b.time[1]) {
-                return -1;
-            }
-            else {
-                return 0
-            }
-        }
-    }
-
-    const countPrevDay = (tempDate) => {
-        let date = tempDate.getDate();
-        return Math.ceil(date / 7);
-    }
-    
-    const isSameDay = (date1, date2) => {
-        if (date1.getFullYear() != date2.getFullYear()) {
-            return false;
-        }
-        else if (date1.getMonth() != date2.getMonth()) {
-            return false;
-        }
-        else if (date1.getDate() != date2.getDate()) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-
-    const daysBetween = (start, end) => {
-        const date1 = makeDummyDateCopy(start);
-        const date2 = makeDummyDateCopy(end);
-        const between = date2 - date1;
-        return Math.round(between / (1000 * 60 * 60 * 24))
-    }
-
-    const makeDummyDateCopy = (date) => {
-        const dummy = new Date();
-        dummy.setFullYear(date.getFullYear());
-        dummy.setMonth(date.getMonth());
-        dummy.setDate(date.getDate());
-        dummy.setHours(0);
-        dummy.setMinutes(0);
-        dummy.setSeconds(0);
-        return dummy;
-    }
-
-    function makeNumberTime(date) {
-        const hour = date.getHours();
-        const minute = date.getMinutes();
-        return (hour * 100) + minute;
-    }
 
     const handleSubmit = () => {
         if (passwordFailed || emailFailed || emailFormatFailed || otherFailed) {
@@ -119,7 +57,6 @@ export default function LoginScreen({route, navigation}) {
             dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
                 const data = snapshot.data();
                 let nowDate = new Date();
-                let myScheduleData = [];
                 dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
                     const regularData = [];
                     querySnapshot.forEach(doc => {
@@ -131,245 +68,23 @@ export default function LoginScreen({route, navigation}) {
                             const tempData = doc.data();
                             episodicData.push(tempData);
                         })
+
+                        let myScheduleData = [];
                         //Process regular schedules
-                        for (let i = 0 ; i < regularData.length; i++) {
-                            let startDate = new Date(regularData[i].startDate.seconds * 1000);
-                            let endDate = new Date(regularData[i].endDate.seconds * 1000)
-                            if (regularData[i].repetition == 'daily') {
-                                let category = {}; 
-                                let cat = await regularData[i].category.get()
-                                category = cat.data();
-                                for (let j = 0; j < 7; j++) {
-                                    myScheduleData.push({
-                                        description: regularData[i].description,
-                                        title: regularData[i].title,
-                                        time: makeNumberTime(startDate, endDate),
-                                        category: category,
-                                        day: j,
-                                        venue: regularData[i].venue
-                                    });
-                                }
-                            }
-                            else if (regularData[i].repetition == 'weekly') {
-                                let category = {};
-                                let now = new Date();
-                                let tempStart = new Date(regularData[i].startDate.seconds * 1000)
-                                let tempEnd = new Date(regularData[i].endDate.seconds * 1000)
-                                let cat = await regularData[i].category.get()
-                                category = cat.data();
-                                for (let j = 0; j < 7; j++) {
-                                    if (((tempStart.getDay() >= tempEnd.getDay()) && (tempStart.getDay() <= now.getDay() && tempEnd.getDay() >= now.getDay())) || ((tempStart.getDay() < tempEnd.getDay()) && (tempStart.getDay() <= now.getDay() && tempEnd.getDay() >= now.getDay()))) {
-                                        let time = [];
-
-                                        if (now.getDay() == tempStart.getDay()) {
-                                            time[0] = makeNumberTime(tempStart);
-                                        }
-                                        else {
-                                            time[0] = '전 날';
-                                        }
-
-                                        if (now.getDay() == tempEnd.getDay()) {
-                                            time[1] = makeNumberTime(tempEnd);
-                                        }
-                                        else {
-                                            time[1] = '다음 날'
-                                        }
-                                        myScheduleData.push({
-                                            description: regularData[i].description,
-                                            title: regularData[i].title,
-                                            time: time,
-                                            category: category,
-                                            day: now.getDay() < nowDate.getDay() ? 7 + now.getDay() - nowDate.getDay() : now.getDay() - nowDate.getDay(),
-                                            venue: regularData[i].venue
-                                        });
-                                    }
-                                    now.setDate(now.getDate() + 1)
-                                }
-                            }
-                            else if (regularData[i].repetition == 'biweekly') {
-                                let category = {};
-                                let now = new Date();
-                                let tempStart = makeDummyDateCopy(new Date(regularData[i].startDate.seconds * 1000)); 
-                                let tempEnd = makeDummyDateCopy(new Date(regularData[i].endDate.seconds * 1000));
-                                let ang = new Date(regularData[i].endDate.seconds * 1000)
-                                ang.setDate(ang.getDate() + 1);
-                                let cat = await regularData[i].category.get()
-                                category = cat.data();
-                                let counter = 0;
-                                let initiator = false;
-                                let between = daysBetween(tempStart, tempEnd);
-                                counter = Math.floor(((now - tempStart) % (1000 * 60 * 60 * 24 * 14)) / (1000 * 60 * 60 * 24));
-                                Alert.alert(between.toString(), counter.toString())
-                                for (let j = 0; j < 7; j++) {
-                                    if (((now - tempStart) % (1000 * 60 * 60 * 24 * 14)) <= tempEnd - tempStart || (initiator && counter <= between)) {
-                                        initiator = true;
-                                        let time = [];
-                                        counter++;
-                                        if (counter == 1) {
-                                            time[0] = makeNumberTime(new Date(regularData[i].startDate.seconds * 1000));
-                                        }
-                                        else {
-                                            time[0] = '전 날';
-                                        }
-
-                                        if (counter == between + 1) {
-                                            time[1] = makeNumberTime(new Date(regularData[i].endDate.seconds * 1000));
-                                        }
-                                        else {
-                                            time[1] = '다음 날'
-                                        }
-
-                                        myScheduleData.push({
-                                            description: regularData[i].description,
-                                            title: regularData[i].title,
-                                            time: time,
-                                            category: category,
-                                            day: now.getDay() < nowDate.getDay() ? 7 + now.getDay() - nowDate.getDay() : now.getDay() - nowDate.getDay(),
-                                            venue: regularData[i].venue
-                                        });
-                                    }
-                                    now.setDate(now.getDate() + 1);
-                                    now.setHours(0);
-                                    now.setMinutes(0);
-                                }
-                            }
-                            else if (regularData[i].repetition == 'monthly') {
-                                let category = {};
-                                let now = new Date();
-                                let nowMonth = now.getMonth();
-                                let tempStart = new Date(regularData[i].startDate.seconds * 1000)
-                                let tempEnd = new Date(regularData[i].endDate.seconds * 1000)
-                                let startDay = tempStart.getDay()
-                                let startDayOrder = countPrevDay(tempStart);
-                                if (startDayOrder == 5) {
-                                    let temp1 = new Date();
-                                    temp1.setMonth(temp1.getMonth() + 1);
-                                    temp1.setDate(0);
-                                    for (let i = temp1.getDate(); i > temp1.getDate() - 7; i--) {
-                                        temp1.setDate(i);
-                                        if (temp1.getDay() == startDay && countPrevDay(temp1) != 5) {
-                                            startDayOrder = 4;
-                                            break;
-                                        }
-                                        temp1.setDate(temp1.getDate() - 1);
-                                    }
-                                    
-                                }
-                                let thisMonthStart = new Date();
-                                
-                                thisMonthStart.setDate(1);
-                                for (let i = 0; i < 31; i++) {
-                                    let tempOrder = countPrevDay(thisMonthStart);
-                                    let tempDay = thisMonthStart.getDay();
-                                    if (tempOrder == startDayOrder && tempDay == startDay) {
-                                        break;
-                                    }
-                                    else {
-                                        thisMonthStart.setDate(thisMonthStart.getDate() + 1);
-                                    }
-                                    if (thisMonthStart.getMonth() != nowMonth) {
-                                        break;
-                                    }
-                                }
-
-                                let duration = daysBetween(tempStart, tempEnd);
-                                
-                                let startRecording = false;
-                                let counter = duration;
-
-                                let cat = await regularData[i].category.get()
-                                category = cat.data();
-                                for (let j = 0; j < 7; j++) {
-                                    let temp = new Date();
-                                    temp.setDate(thisMonthStart.getDate() + duration)
-                                    if(now > thisMonthStart && temp > now/*(startDayOrder < countPrevDay(now) && countPrevDay(now) < endDayOrder) || (startDayOrder == countPrevDay(now) && (startDay < now.getDay()) && (countPrevDay(now) < endDayOrder || (endDayOrder == countPrevDay(now) && now.getDay() <= endDay))) || (startDayOrder < countPrevDay(now) && now.getDay() <= endDay)*/) 
-                                    {
-                                        startRecording = true;
-                                    }
-                                    if (startRecording && counter >= 0) {
-                                        
-                                        let time = [0, 0];
-
-                                        if (counter == duration) {
-                                            time[0] = makeNumberTime(tempStart);
-                                        }
-                                        else {
-                                            time[0] = '전 날';
-                                        }
-
-                                        if (counter == 1) {
-                                            time[1] = makeNumberTime(tempEnd);
-                                            //startRecording = false;
-                                        }
-                                        else {
-                                            time[1] = '다음 날'
-                                        }
-
-                                        myScheduleData.push({
-                                            description: regularData[i].description,
-                                            title: regularData[i].title,
-                                            time: time,
-                                            category: category,
-                                            day: now.getDay() < nowDate.getDay() ? 7 + now.getDay() - nowDate.getDay() : now.getDay() - nowDate.getDay(),
-                                            venue: regularData[i].venue
-                                        });
-                                        counter--;
-                                    }
-                                    now.setDate(now.getDate() + 1)
-                                    now.setHours(0);
-                                    now.setMinutes(0);    
-                                }
-                            }
-                        }
+                        const regData = await processRegularFromToday(regularData);
                         //Process epidosic schedules
-                        for (let i = 0; i < episodicData.length; i++) {
-                            let startDate = new Date(episodicData[i].startDate.seconds * 1000);
-                            let endDate = new Date(episodicData[i].endDate.seconds * 1000);
-
-                            let now = new Date();
-                            let category = {};
-                            let cat = await episodicData[i].category.get()
-                            category = cat.data();
-                            for (let j = 0; j < 7; j++) {
-                                if ((now > startDate || isSameDay(now, startDate)) && (now < endDate || isSameDay(now, endDate))) {
-                                    let time = [];
-
-                                    if (isSameDay(now, startDate)) {
-                                        time[0] = makeNumberTime(startDate);
-                                    }
-                                    else {
-                                        time[0] = '전 날';
-                                    }
-
-                                    if (isSameDay(now, endDate)) {
-                                        time[1] = makeNumberTime(endDate);
-                                    }
-                                    else {
-                                        time[1] = '다음 날'
-                                    }
-
-                                    myScheduleData.push({
-                                        description: episodicData[i].description,
-                                        title: episodicData[i].title,
-                                        time: time,
-                                        category: category,
-                                        isPersonal: episodicData[i].isPersonal,
-                                        day: now.getDay() < nowDate.getDay() ? 7 + now.getDay() - nowDate.getDay() : now.getDay() - nowDate.getDay(),
-                                        venue: episodicData[i].venue
-                                    })
-                                }
-                                now.setDate(now.getDate() + 1);
-                                now.setHours(0);
-                                now.setMinutes(1);
-                            }
-                        }
+                        const epiData = await processEpisodicFromToday(episodicData);
+                        myScheduleData = regData.concat(epiData)
                         myScheduleData = sortIntoDays(myScheduleData);
-                        myScheduleData = myScheduleData.map(element => element.sort(sortEachDays));
+                        myScheduleData = sortEachDays(myScheduleData);
                         setEmailFailed(false);
                         setPasswordFailed(false);
                         setEmailFormatFailed(false);
                         setOtherFailed(false);
                         setLoading(false);
+                        await storeString('email', email);
+                        await storeString('password', pw);
+                        await storeString('autologin', autoLogin ? 'true' : 'false');
                         navigation.navigate("MainScreens", {
                             screen: 'Home',
                             params: {
@@ -417,6 +132,10 @@ export default function LoginScreen({route, navigation}) {
     const handleRegistration = () => {
         navigation.navigate("RegistrationScreen");
     }
+
+    const handleSetAutoLogin = () => {
+        setAutoLogin(!autoLogin)
+    }
     
     return (
         <View style={styles.container}>
@@ -434,6 +153,10 @@ export default function LoginScreen({route, navigation}) {
                 {otherFailed ? <Text style={styles.errorMessage}>알 수 없는 오류입니다. 잠시 후 재시도하세요. 문제가 계속된다면 오류메시지를 캡쳐해 신고해주세요. 불편을 끼쳐드려 죄송합니다.</Text> : <Text style={styles.emptyText}/>}
                 <TextInput style={styles.emailInput} placeholder={'E-mail'} onChangeText={changeEmail} value={email} textContentType={'email'} autoComplete={'email'} />
                 <TextInput style={styles.pwInput} placeholder={'Password'} onChangeText={changePw} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
+                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20,}}>
+                    <Checkbox value={autoLogin} color={'#FFDE00'} onValueChange={setAutoLogin}/>
+                    <Text style={{textAlignVertical: 'center', color: 'black', fontFamily: 'Content' }}>자동 로그인</Text>
+                </View>
                 <TouchableOpacity style={styles.submit} onPress={handleSubmit}><Text style={{color: 'white', fontFamily: 'Candal', fontSize: 10,}}>Login</Text></TouchableOpacity>
                 <TouchableOpacity style={styles.findCredential} onPress={handleFindIdPw}><Text style={{color: '#959595', fontFamily: 'Candal', fontSize: 10}}>Lost E-mail / Password</Text></TouchableOpacity>
                 <TouchableOpacity style={styles.registration} onPress={handleRegistration}><Text style={{color: '#959595', fontFamily: 'Candal', fontSize: 10}}>Register</Text></TouchableOpacity>
@@ -512,7 +235,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
         paddingLeft: 20,
         paddingRight: 20,
-        marginBottom: 20,
+        marginBottom: 5,
         fontFamily: 'Candal',
         fontSize: 10,
     },
