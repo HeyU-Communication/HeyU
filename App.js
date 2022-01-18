@@ -1,4 +1,3 @@
-
 import React from 'react';
 import StartScreen from './src/StartScreen/StartScreen';
 import HomeScreen from './src/HomeScreen/HomeScreen';
@@ -12,9 +11,11 @@ import MyTabBar from './src/components/MyTabBar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView, } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from "expo-font";
+import { loadAsync, useFonts } from "expo-font";
+import firebaseConfig from "./src/components/FirebaseConfig";
+import * as firebase from "firebase";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -59,7 +60,6 @@ function MainScreens() {
 
 export default function App() {
   const [loaded] = useFonts({
-
     Acme: require('./src/components/assets/fonts/Acme-Regular.ttf'),
     AlefBold: require('./src/components/assets/fonts/Alef-Bold.ttf'),
     Alef: require('./src/components/assets/fonts/Alef-Regular.ttf'),
@@ -69,7 +69,6 @@ export default function App() {
     AbhayaLibre: require('./src/components/assets/fonts/AbhayaLibre-Regular.ttf'),
     AbhayaLibre_ExtraBold: require('./src/components/assets/fonts/AbhayaLibre-ExtraBold.ttf'),
     Candal: require("./src/components/assets/fonts/Candal-Regular.ttf")
-
   });
 
   if (!loaded) {
@@ -82,7 +81,6 @@ export default function App() {
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
           <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
           <Stack.Screen name="FindCredentialScreen" component={FindCredentialScreen} />
-
           <Stack.Screen name="MainScreens" component={MainScreens} />
         </Stack.Navigator>
       </NavigationContainer>
