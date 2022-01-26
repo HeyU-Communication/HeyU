@@ -148,8 +148,8 @@ export default function FindCredentialScreen({route, navigation}) {
                     <View style={styles.emailView}>
                         <Text style={styles.findEmail}>Find Email</Text>
                         <View style={styles.hr}/>
-                        <DropDownPicker style={styles.countryPicker} placeholder={'Select Country'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen} setValue={onSelectCountry} />
-                        <DropDownPicker style={styles.universityPicker} placeholder={'Select University'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen} setValue={setUniversity} setItems={changeUniversityData} />
+                        <DropDownPicker style={styles.countryPicker} containerStyle={styles.countryCountainer} zIndex={2000} zIndexInverse={1000} placeholder={'Select Country'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen} setValue={onSelectCountry} />
+                        <DropDownPicker style={styles.universityPicker} containerStyle={styles.universityContainer} zIndex={1000} zIndexInverse={2000} placeholder={'Select University'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen} setValue={setUniversity} setItems={changeUniversityData} />
                         <TextInput style={styles.input} onChangeText={setName} placeholder={'Name'} value={name} textContentType={'name'} autoComplete={'name'}/>
                         <TextInput style={styles.input} onChangeText={setStudentId} placeholder={'Student ID'} value={studentId} textContentType={'nickname'}/>
                         <TouchableOpacity onPress={handleFindEmail} style={styles.findButton}><Text style={styles.findButtonText}>Find Email</Text></TouchableOpacity>
@@ -157,8 +157,8 @@ export default function FindCredentialScreen({route, navigation}) {
                     <View>
                         <Text style={styles.findEmail}>Find Password</Text>
                         <View style={styles.hr} />
-                        <DropDownPicker style={styles.countryPicker} placeholder={'Select Country'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen1} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen1} setValue={onSelectCountry} />
-                        <DropDownPicker style={styles.universityPicker} placeholder={'Select University'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen1} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen1} setValue={setUniversity} setItems={changeUniversityData} />
+                        <DropDownPicker style={styles.countryPicker} containerStyle={styles.countryCountainer} zIndex={2000} zIndexInverse={1000} placeholder={'Select Country'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen1} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen1} setValue={onSelectCountry} />
+                        <DropDownPicker style={styles.universityPicker} containerStyle={styles.universityContainer} zIndex={1000} zIndexInverse={2000} placeholder={'Select University'} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen1} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen1} setValue={setUniversity} setItems={changeUniversityData} />
                         <TextInput style={styles.input} placeholder={'Email'} onChangeText={setEmail} value={email} autoComplete={'email'} textContentType={'email'}/>
                         <TextInput style={styles.input} placeholder={'Name'} onChangeText={setName} value={name} autoComplete={'name'} textContentType={'name'}/>
                         <TextInput style={styles.input} onChangeText={setStudentId} placeholder={'Student ID'} value={studentId} textContentType={'nickname'}/>
@@ -223,24 +223,28 @@ const styles = StyleSheet.create({
         height: 35,
         fontSize: 10,
         width: 0.9 * width,
-        left: 0.05 * width,
+        
         marginBottom: 10,
+    },
+    countryCountainer: {
+        left: 0.05 * width,
+        width: 0.9 * width,
     },
     universityPicker: {
         backgroundColor: 'transparent',
         height: 35,
         width: 0.9 * width,
-        left: 0.05 * width,
-        zIndex: 100,
         marginBottom: 15,
+    },
+    universityContainer: {
+        left: 0.05 * width,
+        width: 0.9 * width,
     },
     countryContainerStyle: {
         height: 35,
-        zIndex: 200,
     },
     univContainerStyle: {
         marginBottom: 10,
-        zIndex: 200,
         width: 0.9 * width,
         left: 0.05 * width,
         top: 50,
@@ -285,14 +289,14 @@ const styles = StyleSheet.create({
     findButtonText: {
         width: '100%',
         textAlign: 'center',
-        paddingTop: 12,
         fontSize: 10,
         fontFamily: 'Candal',
         color: 'white',
-        marginBottom: 20,
+        lineHeight: 40,
     },
     backButton: {
         marginTop: 50,
+        marginBottom: 30,
         width: width,
     },
     backButtonText: {

@@ -8,7 +8,7 @@ import days from '../components/days';
 import koreanDays from '../components/koreanDays';
 import koreanOrder from '../components/assets/fonts/koreanOrder';
 import {Picker} from '@react-native-picker/picker';
-import Checkbox from 'expo-checkbox';
+import CheckBox from 'react-native-check-box';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { dbService } from '../components/FirebaseFunction';
 
@@ -335,21 +335,24 @@ export default function AddTask(props) {
             Alert.alert('', '제목을 입력해주세요')
             return;
         }
-        else if (endDate - startDate == 0) {
+        const tempStart = new Date(startDate.getTime());
+        const tempEnd = new Date(endDate.getTime());
+        tempStart.setHours(parseInt(startHour));
+        tempStart.setMinutes(parseInt(startMinute));
+        tempEnd.setHours(parseInt(endHour));
+        tempEnd.setMinutes(parseInt(endMinute));
+        if (tempEnd - tempStart == 0) {
             Alert.alert('', '시작 날짜/시간과 끝나는 날짜/시간이 동일합니다')
+            return;
         }
-        startDate.setHours(parseInt(startHour));
-        startDate.setMinutes(parseInt(startMinute));
-        endDate.setHours(parseInt(endHour));
-        endDate.setMinutes(parseInt(endMinute));
         props.closeModal()
         if (isRepChosen()) {
             dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('regular').add({
                 category: category == "" ? dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc('noCategory') : dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc(categoryRawData[category]),
                 description: description,
                 title: title,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: tempStart,
+                endDate: tempEnd,
                 venue: venue,
                 repetition: isMonthly ? 'monthly' : isBiweekly ? 'biweekly' : isWeekly ? 'weekly' : isDaily ? 'daily' : 'none',
                 repEndDate: repEndDate,
@@ -360,8 +363,8 @@ export default function AddTask(props) {
                 category: category == "" ? dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc('noCategory') : dbService.collection('profile').doc(props.country).collection(props.university).doc(props.accountId).collection('category').doc(categoryRawData[category]),
                 description: description,
                 title: title,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: tempStart,
+                endDate: tempEnd,
                 venue: venue,
             })
         }
@@ -552,10 +555,10 @@ export default function AddTask(props) {
                         <Text style={styles.eventDates}>반복 선택</Text>
                         <View style={{display: 'flex', flexDirection: 'row',}}>
                             <View>
-                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row'}}><Checkbox value={isDaily} disabled={! canDaily} color={'#FFDE00'} onValueChange={handleChooseDaily}/><Text style={{textAlignVertical: 'center', color: canDaily ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매일 반복</Text></View>
-                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row'}}><Checkbox value={isWeekly} disabled={! canWeekly} color={'#FFDE00'} onValueChange={handleChooseWeekly}/><Text style={{textAlignVertical: 'center', color: canWeekly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매주 반복</Text></View>
-                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row'}}><Checkbox value={isBiweekly} disabled={! canBiWeekly} color={'#FFDE00'} onValueChange={handleChooseBiweekly}/><Text style={{textAlignVertical: 'center', color: canBiWeekly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>격주반복</Text></View>
-                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row'}}><Checkbox value={isMonthly} disabled={! canMonthly} color={'#FFDE00'} onValueChange={handleChooseMonthly}/><Text style={{textAlignVertical: 'center', color: canMonthly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매달 반복</Text></View>
+                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row', marginBottom: 6,}}><CheckBox disabled={! canDaily} isChecked={isDaily} onClick={handleChooseDaily} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} /><Text style={{textAlignVertical: 'center', color: canDaily ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매일 반복</Text></View>
+                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row', marginBottom: 6,}}><CheckBox isChecked={isWeekly} onClick={handleChooseWeekly} disabled={! canWeekly} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} /><Text style={{textAlignVertical: 'center', color: canWeekly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매주 반복</Text></View>
+                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row', marginBottom: 6,}}><CheckBox isChecked={isBiweekly} onClick={handleChooseBiweekly} disabled={! canBiWeekly} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} /><Text style={{textAlignVertical: 'center', color: canBiWeekly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>격주 반복</Text></View>
+                                <View style={{marginLeft: 20, display: 'flex', flexDirection: 'row'}}><CheckBox isChecked={isMonthly} onClick={handleChooseMonthly} disabled={! canMonthly} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} /><Text style={{textAlignVertical: 'center', color: canMonthly ? 'black' : '#E1E1E1', fontFamily: 'Content' }}>매달 반복</Text></View>
                             </View>
                             <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                                 <Text style={styles.intervalText}>{isRepChosen() ? getKoreanDateString(startDate) + '부터' : ""}</Text>
@@ -571,14 +574,15 @@ export default function AddTask(props) {
                             
                         </View>
                         <Text style={styles.eventDates}>카테고리</Text>
-                        <View style={{marginTop: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}><DropDownPicker style={styles.categoryPicker} textStyle={{fontFamily: 'Candal', fontSize: 10}} placeholder={'카테고리를 선택해주세요.'} open={categoryPickerOpen} value={category} items={categoryData} setOpen={setCategoryPickerOpen} setValue={setCategory} labelStyle={{width: width * 0.8}} containerStyle={{width: width * 0.8}}/></View>
-                        <Text style={styles.eventDates}>장소</Text>
-                        <TextInput value={venue} onChangeText={setVenue} placeholder={'장소를 입력해주세요'} style={styles.description}/>
-                        <Text style={styles.eventDates}>설명</Text>
-                        <TextInput style={styles.description} placeholder='설명을 입력해주세요' onChangeText={setDescription} value={description} multiline={true}/>
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 30,}}>
-                            <TouchableOpacity style={styles.cancel} onPress={props.closeModal}><Text style={styles.submitText}>취소</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.submit} onPress={handleSubmit}><Text style={styles.submitText}>확인</Text></TouchableOpacity>
+                        <DropDownPicker style={styles.categoryPicker} textStyle={{fontFamily: 'Candal', fontSize: 10}} placeholder={'카테고리를 선택해주세요.'} open={categoryPickerOpen} value={category} items={categoryData} setOpen={setCategoryPickerOpen} setValue={setCategory} labelStyle={{width: width * 0.8}} containerStyle={{width: width * 0.8, left: width * 0.05 - 5}}/>
+                        <View style={{zIndex: 10, marginTop: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}></View>
+                        <Text style={styles.eventDates} zIndex={9}>장소</Text>
+                        <TextInput zIndex={9} value={venue} onChangeText={setVenue} placeholder={'장소를 입력해주세요'} style={styles.venue}/>
+                        <Text zIndex={9} style={styles.eventDates}>설명</Text>
+                        <TextInput zIndex={9} style={styles.description} placeholder='설명을 입력해주세요' onChangeText={setDescription} value={description} multiline={true}/>
+                        <View zIndex={9} style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 30,}}>
+                            <TouchableOpacity  zIndex={9} style={styles.cancel} onPress={props.closeModal}><Text style={styles.submitText}>취소</Text></TouchableOpacity>
+                            <TouchableOpacity zIndex={9} style={styles.submit} onPress={handleSubmit}><Text style={styles.submitText}>확인</Text></TouchableOpacity>
                         </View>
                         
                     </View>
@@ -617,6 +621,7 @@ const styles = StyleSheet.create({
         fontFamily: 'AbhayaLibre_ExtraBold',
         left: 20,
         marginTop: 30,
+        zIndex: 9,
     },
     startDateButton: {
         backgroundColor: '#E1E1E1',
@@ -715,6 +720,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         paddingLeft: 20,
         marginTop: 5,
+        zIndex: 9,
     },
     description: {
         backgroundColor: '#E1E1E1',
@@ -724,6 +730,7 @@ const styles = StyleSheet.create({
         maxHeight: 150,
         fontSize: 12,
         left: 10,
+        lineHeight: 25, 
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         borderTopRightRadius: 20,
@@ -731,6 +738,7 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         marginTop: 5,
+        zIndex: 9,
     },
     submit: {
         backgroundColor: '#EFD100',
@@ -738,21 +746,25 @@ const styles = StyleSheet.create({
         height: 50,
         borderWidth: 0,
         marginRight: -1,
+        zIndex: 9,
     },
     cancel: {
         backgroundColor: '#E1E1E1',
         flex: 2,
         height: 50,
         borderWidth: 0,
+        zIndex: 9,
     },
     submitText: {
         textAlign: 'center',
-        lineHeight: 50
+        lineHeight: 50,
+        zIndex: 9,
     },
     intervalText: {
         color: 'black',
         marginLeft: 30,
         marginBottom: 6.5,
         fontSize: 12,
+        zIndex: 9,
     }
 })

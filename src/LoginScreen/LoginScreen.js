@@ -6,7 +6,7 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 import { processEpisodicFromToday, processRegularFromToday, sortEachDays, sortIntoDays } from '../components/TaskProcess';
 import { storeJSON, storeString } from '../components/StorageFunctions';
-import Checkbox from 'expo-checkbox';
+import CheckBox from 'react-native-check-box'
 
 export default function LoginScreen({route, navigation}) {
     const [email, changeEmail] = useState("")
@@ -21,7 +21,7 @@ export default function LoginScreen({route, navigation}) {
     useEffect(() => {
         const user = authService.currentUser;
         if (user) {
-            setLoading(true)
+            /*setLoading(true)
             dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
                 const data = snapshot.data();
                 const setter = (myScheduleData) => {
@@ -36,7 +36,7 @@ export default function LoginScreen({route, navigation}) {
                     })
                 }
                 await fetchSchedule(data.uid, data.country, data.university, setter);
-            })
+            })*/
         }
     }, [])
 
@@ -153,9 +153,9 @@ export default function LoginScreen({route, navigation}) {
                 {otherFailed ? <Text style={styles.errorMessage}>알 수 없는 오류입니다. 잠시 후 재시도하세요. 문제가 계속된다면 오류메시지를 캡쳐해 신고해주세요. 불편을 끼쳐드려 죄송합니다.</Text> : <Text style={styles.emptyText}/>}
                 <TextInput style={styles.emailInput} placeholder={'E-mail'} onChangeText={changeEmail} value={email} textContentType={'email'} autoComplete={'email'} />
                 <TextInput style={styles.pwInput} placeholder={'Password'} onChangeText={changePw} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
-                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20,}}>
-                    <Checkbox value={autoLogin} color={'#FFDE00'} onValueChange={setAutoLogin}/>
-                    <Text style={{textAlignVertical: 'center', color: 'black', fontFamily: 'Content' }}>자동 로그인</Text>
+                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20, alignItems: 'center'}}>
+                    <CheckBox isChecked={autoLogin} onClick={() => setAutoLogin(!autoLogin)} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'}/>
+                    <Text style={{textAlignVertical: 'center', color: 'black', fontFamily: 'Content', fontSize: 10, opacity: 0.6 }}>자동 로그인</Text>
                 </View>
                 <TouchableOpacity style={styles.submit} onPress={handleSubmit}><Text style={{color: 'white', fontFamily: 'Candal', fontSize: 10,}}>Login</Text></TouchableOpacity>
                 <TouchableOpacity style={styles.findCredential} onPress={handleFindIdPw}><Text style={{color: '#959595', fontFamily: 'Candal', fontSize: 10}}>Lost E-mail / Password</Text></TouchableOpacity>

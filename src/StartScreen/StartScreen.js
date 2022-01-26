@@ -49,10 +49,8 @@ export default function StartScreen({ navigation }) {
                 getStringData('autologin').then(autoLogin => {
                     getStringData('email').then(email => {
                         getStringData('password').then(pw => {
-                            console.log(autoLogin)
-                            console.log(email)
-                            console.log(pw);
-
+                            navigation.navigate('LoginScreen'); //개발용 옵션. 배포시 제거할 것
+                            return () => {} //개발용 코드. 배포시 제거할 것.
                             if (!autoLogin) {
                                 navigation.navigate('LoginScreen');
                             }
@@ -137,9 +135,7 @@ export default function StartScreen({ navigation }) {
         U{"\n"}U
       </Text>
       <Image style={styles.Hey} source={require("./Hey.png")} />
-      <Text style={styles.bigU}>U</Text>
-      <View style={styles.whiteSpace}></View>
-      <Image style={styles.StartLogo} source={require("./StartLogo.png")} />
+      <Image style={styles.StartLogo} source={require("./icon.png")} />
     </View>
   );
 }
@@ -173,36 +169,39 @@ const styles = StyleSheet.create({
     fontSize: 50,
     position: "absolute",
     left: 70,
-    top: 100,
+    top: 103,
     fontWeight: "bold",
     textAlign: "left",
     textShadowColor: "#585858",
     textShadowOffset: { width: -1, height: 0 },
     textShadowRadius: 5,
+    lineHeight: 60,
   },
   UBottom: {
     color: "#FFDF00",
     fontSize: 50,
     position: "absolute",
     left: 70,
-    top: 100,
+    top: 103,
     fontWeight: "bold",
     textAlign: "left",
     textShadowColor: "#585858",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+    lineHeight: 60,
   },
   URight: {
     color: "#FFDF00",
     fontSize: 50,
     position: "absolute",
     left: 70,
-    top: 100,
+    top: 103,
     fontWeight: "bold",
     textAlign: "left",
     textShadowColor: "#585858",
     textShadowOffset: { width: 1, height: 0 },
     textShadowRadius: 5,
+    lineHeight: 60,
   },
 
   UTop: {
@@ -210,12 +209,13 @@ const styles = StyleSheet.create({
     fontSize: 50,
     position: "absolute",
     left: 70,
-    top: 100,
+    top: 103,
     fontWeight: "bold",
     textAlign: "left",
     textShadowColor: "#000000",
     textShadowOffset: { width: 0, height: -1 },
     textShadowRadius: 3,
+    lineHeight: 60,
   },
   Hey: {
     width: 260,
@@ -246,9 +246,9 @@ const styles = StyleSheet.create({
   StartLogo: {
     position: "absolute",
     left: 4,
-    top: 421,
+    top: 320,
     width: 390,
-    height: 430,
+    height: 532,
     zIndex: 3,
   },
   primaryTitle: {
@@ -259,5 +259,6 @@ const styles = StyleSheet.create({
     top: 100,
     fontWeight: "bold",
     textAlign: "left",
+    lineHeight: 60,
   },
 });

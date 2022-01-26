@@ -23,7 +23,6 @@ export default function HomeScreen({route, navigation}) {
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
     let [addOpen, setAddOpen] = useState(false);
     let [isFirstFocus, setIsFirstFocus] = useState(true);
-    console.log(route.params)
     const { accountId, country, university, scheduleProps, /*authProps*/ } = route.params;
 
     const setterFunc = (schedule) => {
@@ -58,7 +57,7 @@ export default function HomeScreen({route, navigation}) {
         const timer = setInterval(async () => {
             const schedule = await fetchSchedule(accountId, country, university, setterFunc)
             //setterFunc(schedule);
-        }, 6 * 1000)
+        }, 60 * 1000)
         return () => {
             clearInterval(timer);
             backHandler.remove();
