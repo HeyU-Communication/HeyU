@@ -1,9 +1,11 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { StyleSheet, CheckBox, Text, View, Dimensions, TouchableOpacity, Image, Alert, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image, Alert, TextInput, ScrollView } from 'react-native';
 import { authService, dbService, getUniversities, storageService } from '../components/FirebaseFunction';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { CircleSnail } from 'react-native-progress';
+import CheckBox from 'react-native-check-box';
+import Modal from "react-native-modal";
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -35,6 +37,8 @@ export default function RegistrationScreen({route, navigation}) {
     const [profileSelected, setProfileSelected] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const [selectCountryOpen, setSelectCountryOpen] = useState(false);
+
     const styles = StyleSheet.create({
         container: {
             top: 25,
@@ -45,42 +49,56 @@ export default function RegistrationScreen({route, navigation}) {
             color: '#FFDE00',
             fontFamily: 'Candal',
             fontSize: 20,
+            marginTop: 20,
         },
         selectCountry: {
             left: 0.05 * width,
             fontFamily: 'Candal',
             fontSize: 10,
-            marginTop: 10,
             marginBottom: 5,
+            marginTop: 20,
         },
+        pickerButton: {
+            backgroundColor: '#E1E1E1',
+            fontFamily: 'Candal',
+            height: 35,
+            width: 0.9 * width,
+            left: 0.05 * width,
+            paddingLeft: 5,
+            borderBottomLeftRadius: 10,
+            borderTopLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            borderTopRightRadius: 10,
+        },
+        modalStyle: {
+            backgroundColor: 'white',
+            width: 0.9 * width,
+            height: height - 100,
+            borderWidth: 5,
+            borderColor: "#FFDE00",
+            display: 'flex',
+            flexDirection: 'column',
+        },  
         countryPicker: {
             backgroundColor: 'transparent',
             fontFamily: 'Candal',
             height: 35,
             fontSize: 10,
             width: 0.9 * width,
-            left: 0.05 * width,
             marginBottom: 10,
+        },
+        countryContainerStyle: {
+            width: 0.9 * width,
+            left: 0.05 * width,
         },
         universityPicker: {
             backgroundColor: 'transparent',
             height: 35,
             width: 0.9 * width,
-            left: 0.05 * width,
-            zIndex: 100,
-            marginBottom: 15,
-        },
-        countryContainerStyle: {
-            height: 35,
-            zIndex: 200,
-        },
+        },        
         univContainerStyle: {
-            marginBottom: 10,
-            zIndex: 200,
             width: 0.9 * width,
             left: 0.05 * width,
-            top: 50,
-            zIndex: 100,
         },
         itemStyle: {
             fontFamily: 'Candal',
@@ -93,11 +111,24 @@ export default function RegistrationScreen({route, navigation}) {
             fontFamily: 'Candal',
             fontSize: 10,
             marginBottom: 5,
+            zIndex: 10,
+        },
+        selectButton: {
+            left: 0.05 * width,
+            width: 0.8 * width,
+            height: height - 500,
+            backgroundColor: '#F5DF4D',
+            borderBottomLeftRadius: 10,
+            borderTopLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            borderTopRightRadius: 10,
+            marginTop: 20,
         },
         personalInfo: {
             fontFamily: 'Candal',
             left: 0.05 * width,
             fontSize: 10,
+            marginTop: 20, 
             marginBottom: 10,
         },
         name: {
@@ -229,56 +260,46 @@ export default function RegistrationScreen({route, navigation}) {
             left: 0.05 * width,
         },
         checkAllText: {
-            left: (0.05 * width) + 35,
+            marginLeft: 25,
             fontSize: 10,
             fontFamily: 'AbhayaLibre_ExtraBold',
             color: agreeAll ? 'black' : '#7C7C7C',
-            marginBottom: -20,
-            top: -22,
         },
         serviceTerm: {
             left: 0.05 * width,
         },
         serviceTermText: {
-            left: (0.05 * width) + 35,
+            marginLeft: 25,
             fontSize: 10,
             fontFamily: 'AbhayaLibre_ExtraBold',
             color: serviceAgree ? 'black' : '#7C7C7C',
-            marginBottom: -20,
-            top: -22,
         },
         personalTerm: {
             left: 0.05 * width,
         },
         personalTermText: {
-            left: (0.05 * width) + 35,
+            marginLeft: 25,
             fontSize: 10,
             fontFamily: 'AbhayaLibre_ExtraBold',
             color: personalAgree ? 'black' : '#7C7C7C',
-            marginBottom: -20,
-            top: -22,
         },
         communityTerm: {
             left: 0.05 * width,
         },
         communityTermText: {
-            left: (0.05 * width) + 35,
+            marginLeft: 25,
             fontSize: 10,
             fontFamily: 'AbhayaLibre_ExtraBold',
             color: communityAgree ? 'black' : '#7C7C7C',
-            marginBottom: -20,
-            top: -22,
         },
         adTerm: {
             left: 0.05 * width,
         },
         adTermText: {
-            left: (0.05 * width) + 35,
+            marginLeft: 25,
             fontSize: 10,
             fontFamily: 'AbhayaLibre_ExtraBold',
             color: adAgree ? 'black' : '#7C7C7C',
-            top: -22,
-            marginBottom: -5,
         },
         prospective: {
             top: 60,
@@ -337,6 +358,7 @@ export default function RegistrationScreen({route, navigation}) {
             borderTopRightRadius: 20,
             alignItems: 'center',
             paddingTop: 10,
+            marginTop: 10,
             marginBottom: 50,
         },
         circleSnailStyle: {
@@ -462,18 +484,41 @@ export default function RegistrationScreen({route, navigation}) {
     }
 
     const [isNicknameAdequate, setIsNicknameAdequate] = useState(true);
+    const [isNicknameUnique, setIsNicknameUnique] = useState(true);
     const onNicknameLoseFocus = () => {
-        const letters = /^[ㄱ-힣A-Za-z0-9 ]+$/
-        if (letters.test(nickname) || nickname.length === 0) {
-            setIsNicknameAdequate(true);
-        }
-        else {
-            setIsNicknameAdequate(false);
-        }
+        dbService.collection('profileRef').get().then(collection => {
+            let isUnique = true;
+            collection.forEach(doc => {
+                let data = doc.data();
+                if (data.nickname == nickname) {
+                    setIsNicknameUnique(false)
+                    isUnique = false;
+                }
+            })
+            if (isUnique) {
+                setIsNicknameUnique(true);
+            }
+            const letters = /^[ㄱ-힣A-Za-z0-9 ]+$/
+            if (letters.test(nickname) || nickname.length === 0) {
+                setIsNicknameAdequate(true);
+            }
+            else {
+                setIsNicknameAdequate(false);
+            }
+        })
+        
     }
 
     const [isEmailAdequate, setIsEmailAdequate] = useState(true);
     const onEmailLoseFocus = () => {
+        const temp = universityRawData.filter(element => {
+            if (element.name == university) {
+                return true;
+            }
+            else {
+                false;
+            }
+        })
         if (email.length === 0) {
             setIsEmailAdequate(true);
         }
@@ -481,6 +526,9 @@ export default function RegistrationScreen({route, navigation}) {
             setIsEmailAdequate(false)
         }
         else if (email.indexOf('@') < 1 && email.indexOf("@") + 3 >= email.length && email.substring(email.indexOf("@") + 1, email.length).indexOf(".") < 0) {
+            setIsEmailAdequate(false);
+        }
+        else if (temp.length > 0 && temp[0].emailHost != email.substring(email.indexOf("@") + 1, email.length)) {
             setIsEmailAdequate(false);
         }
         else {
@@ -547,6 +595,11 @@ export default function RegistrationScreen({route, navigation}) {
         changeCountry(value)
     }
 
+    const onSelectUniversity = (value) => {
+        changeUniversity(value());
+        setCountryPickerOpen(false);
+    }
+
     const handleRegistration = () => {
         if (!isCheckPwAdequate || !isEmailAdequate || !isNameAdequate || !isNicknameAdequate || !isPasswordAdequate) {
             Alert.alert('회원가입 실패', '모든 항목을 알맞게 기재해 주세요.')
@@ -563,11 +616,9 @@ export default function RegistrationScreen({route, navigation}) {
         setLoading(true);
         authService.createUserWithEmailAndPassword(email, pw)
         .then(async (userCredential) => {
-            console.log('User created')
             const user = userCredential.user;
             let profileUrl = "default";
             if (profileSelected) {
-                console.log('Profile selected')
                 const blob = await new Promise((resolve, reject) => {
                     const xhr = new XMLHttpRequest();
                     xhr.onload = function () {
@@ -583,11 +634,8 @@ export default function RegistrationScreen({route, navigation}) {
                 });
             
                 const snapshot = await storageService.ref('profile/' + user.uid).put(blob);
-                console.log("Profile uploaded")
                 profileUrl = await snapshot.ref.getDownloadURL();
-                console.log("Profile Img Link Retrieved")
             }
-            console.log("Uploading profile")
             const uploadProfile = await dbService.collection('profile').doc(country).collection(university).doc(user.uid).set({
                 name: name,
                 email: email,
@@ -599,21 +647,20 @@ export default function RegistrationScreen({route, navigation}) {
             const uploadProfileRef = await dbService.collection('profileRef').doc(user.uid).set({
                 country: country,
                 uid: user.uid,
-                university: university
+                university: university,
+                nickname: nickname,
+                studentId: studentId,
             })
             const initialSetup = await dbService.collection('profile').doc(country).collection(university).doc(user.uid).collection('category').doc('noCategory').set({
                 color: '#FFFFFF',
                 isModule: false,
                 name: 'No category'
             })
-            console.log("Profile uploaded")
-            console.log("Sending verification email")
             await authService.currentUser.sendEmailVerification().then(() => {
                 setLoading(false);
                 Alert.alert('회원 가입 성공!', 'A verification email has been sent to registered email address. Please click on the link in the email to activate your account. \n\n 계정 확인 메일이 입력하신 메일주소로 발송되었습니다. 이메일에 있는 링크를 눌러 계정을 활성화해주세요.')
                 navigation.navigate('LoginScreen')
             }).catch(err => {
-                console.log(err);
                 setLoading(false);
                 Alert.alert('회원가입 실패', "알 수 없는 오류로 회원가입을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.")
                 return;
@@ -633,50 +680,67 @@ export default function RegistrationScreen({route, navigation}) {
     }
 
     return (
+        
         <View style={{height: '100%'}}>
             {loading ? 
             <View><CircleSnail animating={loading} style={styles.circleSnailStyle} color={'#FFDE00'}/></View> 
             : 
-            <ScrollView style={styles.container}>
-                <Text style={styles.registrationText}>Registration</Text>
-                <View>
-                    <Text style={styles.selectCountry}>Select Your Country</Text>
-                    <DropDownPicker style={styles.countryPicker} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen} setValue={onSelectCountry} />
-                    <Text style={styles.findYourUniversity}>Find Your University</Text>
-                    <DropDownPicker style={styles.universityPicker}textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen} setValue={changeUniversity} setItems={changeUniversityData} />
-                </View>
-                <View>
-                    <Text style={styles.personalInfo}>Personal Information</Text>
-                    <TextInput onBlur={onNameLoseFocus} style={styles.name} onChangeText={changeName} placeholder={'Name'} value={name} textContentType={'name'} autoComplete={'name'} />
-                    {isNameAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>이름은 특수기호를 포함할 수 없습니다.</Text>}
-                    <TextInput onBlur={onNicknameLoseFocus} style={styles.nickname} onChangeText={changeNickname} placeholder={'Nickname'} value={nickname} textContentType={'nickname'} autoComplete={'name'} />
-                    <Text style={styles.emptyText} />
-                    <TextInput style={styles.studentId} onChangeText={setStudentId} placeholder={'Student ID'} value={studentId} textContentType={'nickname'} autoComplete={'name'} />
-                    {isNicknameAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>닉네임은 특수기호를 포함할 수 없습니다.</Text>}
-                    <TextInput onBlur={onEmailLoseFocus} style={styles.email} onChangeText={changeEmail} placeholder={'Email'} value={email} textContentType={'emailAddress'} autoComplete={'emailAddress'} />
-                    {isEmailAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>이메일 형식이 잘못되었습니다.</Text>}
-                    <TextInput onBlur={onPasswordLoseFocus} style={styles.password} onChangeText={changePw} placeholder={'Password'} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
-                    {isPasswordAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>비밀번호는 최소 8자리이어야합니다.</Text>}
-                    <TextInput onBlur={onCheckPwLoseFocus} style={styles.checkPw} onChangeText={changeCheckPw} placeholder={'Password Check'} value={checkPw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
-                    {isCheckPwAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>비밀번호와 일치하지 않습니다.</Text>}
-                </View>
-                <Text style={styles.profileText} >Profile Photo</Text>
-                <TouchableOpacity style={styles.profileContainer} onPress={handleFileUpload}>
-                    <Image style={styles.profileImg} source={profileSelected ? {uri: profileImg} : require('./Profile.png')} />
-                </TouchableOpacity>
-                <View>
-                    <Text style={styles.terms}>이용약관</Text>
-                    <Text style={styles.viewTerms}>이용약관 보기</Text>
-                    <CheckBox value={agreeAll} onValueChange={selectAgreeAll} style={styles.checkAll} /><Text style={styles.checkAllText}>아래 이용약관에 모두 동의합니다.</Text>
-                    <CheckBox value={serviceAgree} onValueChange={selectService} style={styles.serviceTerm} /><Text style={styles.serviceTermText}>서비스 이용약관 동의 (필수)</Text>
-                    <CheckBox value={personalAgree} onValueChange={selectPersonal} style={styles.personalTerm} /><Text style={styles.personalTermText}>개인정보처리방침 동의 (필수)</Text>
-                    <CheckBox value={communityAgree} onValueChange={selectCommunity} style={styles.communityTerm} /><Text style={styles.communityTermText}>커뮤니티 이용규칙 확인 (필수)</Text>
-                    <CheckBox value={adAgree} onValueChange={selectAd} style={styles.adTerm} /><Text style={styles.adTermText}>광고성 정보 수신 동의 (선택)</Text>
-                </View>
-                <TouchableOpacity style={styles.registration} onPress={handleRegistration}>
-                    <Text style={{fontFamily: 'Candal', color: 'white',}}>Registration</Text>
-                </TouchableOpacity>
-            </ScrollView>}
+            <View>
+                <ScrollView style={styles.container}>
+                    <Text style={styles.registrationText}>Registration</Text>
+                    <View>
+                        <Text style={styles.selectCountry}>Select Your Country</Text>
+                        <DropDownPicker listMode='SCROLLVIEW' zIndex={2000} zIndexInverse={1000} style={styles.countryPicker} containerStyle={styles.countryContainerStyle} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={countryPickerOpen} value={country} items={countryData} onOpen={onCountryOpen} setOpen={setCountryPickerOpen} setValue={onSelectCountry} />
+                        <Text style={styles.findYourUniversity}>Find Your University</Text>
+                        <DropDownPicker zIndex={1000} zIndexInverse={2000} style={styles.universityPicker} containerStyle={styles.univContainerStyle} textStyle={{fontFamily: 'Candal', fontSize: 10}} open={universityPickerOpen} value={university} items={displayedUniversity} onOpen={onUnivOpen} setOpen={setUniversityPickerOpen} setValue={onSelectUniversity} setItems={changeUniversityData} />                             
+                        <Text style={styles.personalInfo}>Personal Information</Text>
+                        <TextInput onBlur={onNameLoseFocus} style={styles.name} onChangeText={changeName} placeholder={'Name'} value={name} textContentType={'name'} autoComplete={'name'} />
+                        {isNameAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>이름은 특수기호를 포함할 수 없습니다.</Text>}
+                        <TextInput onBlur={onNicknameLoseFocus} style={styles.nickname} onChangeText={changeNickname} placeholder={'Nickname'} value={nickname} textContentType={'nickname'} autoComplete={'name'} />
+                        {isNicknameAdequate ? isNicknameUnique ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>닉네임이 이미 존재합니다.</Text>: <Text style={styles.alert}>닉네임은 특수기호를 포함할 수 없습니다.</Text>}
+                        <TextInput style={styles.studentId} onChangeText={setStudentId} placeholder={'Student ID'} value={studentId} textContentType={'nickname'} autoComplete={'name'} />
+                        <Text style={styles.emptyText} />
+                        <TextInput onBlur={onEmailLoseFocus} style={styles.email} onChangeText={changeEmail} placeholder={'Email'} value={email} textContentType={'emailAddress'} autoComplete={'emailAddress'} />
+                        {isEmailAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>이메일 형식이 잘못되었습니다.</Text>}
+                        <TextInput onBlur={onPasswordLoseFocus} style={styles.password} onChangeText={changePw} placeholder={'Password'} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
+                        {isPasswordAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>비밀번호는 최소 8자리이어야합니다.</Text>}
+                        <TextInput onBlur={onCheckPwLoseFocus} style={styles.checkPw} onChangeText={changeCheckPw} placeholder={'Password Check'} value={checkPw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
+                        {isCheckPwAdequate ? <Text style={styles.emptyText} /> : <Text style={styles.alert}>비밀번호와 일치하지 않습니다.</Text>}
+                    </View>
+                    <Text style={styles.profileText} >Profile Photo</Text>
+                    <TouchableOpacity style={styles.profileContainer} onPress={handleFileUpload}>
+                        <Image style={styles.profileImg} source={profileSelected ? {uri: profileImg} : require('./Profile.png')} />
+                    </TouchableOpacity>
+                    <View style={{display: 'flex', flexDirection: 'column'}}>
+                        <Text style={styles.terms}>이용약관</Text>
+                        <Text style={styles.viewTerms}>이용약관 보기</Text>
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <CheckBox isChecked={agreeAll} onClick={() => selectAgreeAll(!agreeAll)} style={styles.checkAll} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} />
+                            <Text style={styles.checkAllText}>아래 이용약관에 모두 동의합니다.</Text>
+                        </View>
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <CheckBox isChecked={serviceAgree} onClick={() => selectService(!serviceAgree)} style={styles.serviceTerm} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} />
+                            <Text style={styles.serviceTermText}>서비스 이용약관 동의 (필수)</Text>
+                        </View>
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <CheckBox isChecked={personalAgree} onClick={() => selectPersonal(!personalAgree)} style={styles.personalTerm} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} />
+                            <Text style={styles.personalTermText}>개인정보처리방침 동의 (필수)</Text>
+                        </View>
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <CheckBox isChecked={communityAgree} onClick={() => selectCommunity(!communityAgree)} style={styles.communityTerm} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} />
+                            <Text style={styles.communityTermText}>커뮤니티 이용규칙 확인 (필수)</Text>
+                        </View>
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <CheckBox isChecked={adAgree} onClick={() => selectAd(!adAgree)} style={styles.adTerm} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'} />
+                            <Text style={styles.adTermText}>광고성 정보 수신 동의 (선택)</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity style={styles.registration} onPress={handleRegistration}>
+                        <Text style={{fontFamily: 'Candal', color: 'white',}}>Registration</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </View>
+            }
         </View>
     )
 }

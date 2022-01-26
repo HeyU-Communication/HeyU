@@ -3,6 +3,9 @@ import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async } from 'rea
 
 export default function Event(props) {
 
+    const width = Dimensions.get('window').width;
+    const height = Dimensions.get('window').height;
+
     const styles = StyleSheet.create({
         dot: {
             width: 20,
@@ -35,56 +38,54 @@ export default function Event(props) {
             zIndex: 1,
         },
         eventContainer: {
-            width: '88%',
+            width: props.current ? width - 65 : width - 45,
             height: 110,
             backgroundColor: props.current ? '#FFDE00' : 'transparent',
             position: 'relative',
             top: 0,
-            left: '30%',
+            left: props.current ? 40 : 30,
             borderTopLeftRadius: 33,
             borderTopRightRadius: 33,
             borderBottomLeftRadius: 33,
             borderBottomRightRadius: 33,
             marginBottom: props.current ? 0 : '-9%',
+            display: 'flex',
             flexDirection: 'row'
         },
         eventDetails: {
-            flex: 1
+            flex: 7,
+            //backgroundColor: 'blue'
         },
         eventTimes: {
-            flex: 1
+            flex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            //backgroundColor: 'purple'
         },
         name: {
-            position: 'relative',
             top: props.current ? 18 : 2,
             left: 20,
             fontWeight: 'bold',
             marginBottom: 3,
         },
         venue: {
-            position: 'relative',
             left: 20,
             top: props.current ? 18 : 2,
             marginBottom: 3,
         },
         category: {
-            position: 'relative',
             left: 20,
             top: props.current ? 18 : 2,
             marginBottom: 3,
         },
         startTime: {
-            position: 'relative',
             top: props.current ? 18 : 2,
-            left: props.current ? props.startTime == '전 날' ? '77%' : '75%' : props.startTime == '전 날' ? '86%' : '85%',
         },
         to: {
-            left: props.current ? '80%' : '90%',
             top: props.current ? 18 : 2
         },
         endTime: {
-            position: 'relative',
-            left: props.current ? props.endTime == '다음 날' ? '74%' : '75%' : props.endTime == '다음 날' ? '84%' : '85%',
             top: props.current ? 18 : 2,
         },
     })
@@ -138,7 +139,7 @@ export default function Event(props) {
             <View style={styles.dot}></View>
             <View style={styles.bar}></View>
             <View style={styles.eventContainer}>
-                <View stlye={styles.eventDetails}>
+                <View style={styles.eventDetails}>
                     <Text style={styles.name}>{props.name}</Text>
                     <Text style={styles.category}>{props.category}</Text>
                     <Text style={styles.venue}>{props.venue}</Text>
@@ -148,9 +149,6 @@ export default function Event(props) {
                     <Text style={styles.to}>to</Text>
                     <Text style={styles.endTime}>{props.endTime == '다음 날' ? '다음 날' : endHour + ':' + endMinute}</Text>
                 </View>
-
-                
-                
             </View>
         </View>
     )
