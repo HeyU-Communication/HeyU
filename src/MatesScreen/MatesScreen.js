@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Image,
@@ -7,7 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import { SearchBar } from "react-native-elements";
+import SearchMates from "./SearchMates";
 import MatesList from "./MatesList";
 import MatesRequest from "./MatesRequest";
 
@@ -15,18 +15,11 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 export default function MatesScreen({ navigation }) {
-  const [inputText, setInputText] = useState(false);
-  let [selectedOption, setSelectedOption] = useState(1);
+  let [selectedOption, setSelectedOption] = useState(0);
 
   const matesBar = ["검색", "친구", "친구요청"];
 
   const onPressMessage = () => {};
-
-  const { search } = inputText;
-
-  updateSearch = (search) => {
-    useState({ search });
-  };
 
   return (
     <View>
@@ -55,30 +48,7 @@ export default function MatesScreen({ navigation }) {
           );
         })}
       </View>
-      <View style={styles.searchBar}>
-        <SearchBar
-          placeholder="이메일 주소, 핸드폰 번호"
-          onChangeText={updateSearch()}
-          value={search}
-          lightTheme
-          round
-          containerStyle={{
-            backgroundColor: "transparent",
-            borderBottomColor: "transparent",
-            borderTopColor: "transparent",
-          }}
-          inputContainerStyle={{
-            borderColor: "#E4E4E4",
-            borderWidth: 1,
-            backgroundColor: "#FFFFFF",
-            width: selectedOption === 0 || selectedOption === 1 ? "100%" : "0%",
-            height:
-              selectedOption === 0 || selectedOption === 1 ? "100%" : "0%",
-          }}
-          placeholderTextColor="#A1A1A1"
-          pointerEvents={selectedOption === 2 && "none"}
-        />
-      </View>
+      {selectedOption === 0 && <SearchMates />}
       {selectedOption === 1 && <MatesList />}
       {selectedOption === 2 && <MatesRequest />}
     </View>
@@ -102,6 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#FFE851",
+    zIndex: 1,
   },
   selectedOptionObject: {
     flex: 1,
@@ -116,11 +87,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     left: 0,
     top: 10,
-  },
-  searchBar: {
-    position: "absolute",
-    width: "100%",
-    height: 10,
-    top: 150,
   },
 });

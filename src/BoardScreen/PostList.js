@@ -6,7 +6,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   KeyboardAvoidingView,
   NativeModules,
   Alert,
@@ -360,8 +359,8 @@ const PostList = () => {
         </TouchableOpacity>
       </View>
       <KeyboardAvoidingView
-        behavior={"padding"}
-        keyboardVerticalOffset={statusBarHeight + 140}
+        behavior={"position"}
+        keyboardVerticalOffset={statusBarHeight + 155}
       >
         <View style={styles.PostSearch}>
           <TextInput
@@ -410,7 +409,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    top: 10,
+    top: 30,
+    backgroundColor: "#F1F1F1",
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderColor: "#F1F1F1",
   },
   PostSearchBox: {
     position: "relative",
@@ -443,6 +446,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    top: 20,
   },
   PageChange: {
     padding: 15,
