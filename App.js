@@ -94,7 +94,7 @@ function MainScreens(props) {
 
 function CoreScreens({route, navigation}) {
   console.log(route.params)
-  const { accountId, country, university, scheduleProps, nickname, studentId } = route.params.params;
+  const { accountId, country, university, scheduleProps, nickname, studentId } = route.params;
 
   const [selected, setSelected] = useState({screen: 'default'});
 
