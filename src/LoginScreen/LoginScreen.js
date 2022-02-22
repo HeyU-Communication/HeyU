@@ -41,9 +41,6 @@ export default function LoginScreen({route, navigation}) {
     }, [])
 
     const handleSubmit = () => {
-        if (passwordFailed || emailFailed || emailFormatFailed || otherFailed) {
-            return;
-        }
         setLoading(true)
         authService.signInWithEmailAndPassword(email, pw).then(async (userCredential) => {
             const user = userCredential.user
@@ -54,9 +51,10 @@ export default function LoginScreen({route, navigation}) {
                 return;
             }
 
-            dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
+            dbService.collection('profileRef').doc(user.uid).get().then(snapshot => {
                 const data = snapshot.data();
                 let nowDate = new Date();
+                console.log(data)
                 dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
                     const regularData = [];
                     querySnapshot.forEach(doc => {
@@ -86,13 +84,12 @@ export default function LoginScreen({route, navigation}) {
                         await storeString('password', pw);
                         await storeString('autologin', autoLogin ? 'true' : 'false');
                         navigation.navigate("MainScreens", {
-                            screen: 'Home',
-                            params: {
-                                accountId: data.uid,
-                                country: data.country,
-                                university: data.university,
-                                scheduleProps: myScheduleData,
-                            }
+                            accountId: data.uid,
+                            country: data.country,
+                            university: data.university,
+                            nickname: data.nickname,
+                            studentId: data.studentId,
+                            scheduleProps: myScheduleData,
                         })
                     })
                 })
@@ -153,7 +150,7 @@ export default function LoginScreen({route, navigation}) {
                 {otherFailed ? <Text style={styles.errorMessage}>알 수 없는 오류입니다. 잠시 후 재시도하세요. 문제가 계속된다면 오류메시지를 캡쳐해 신고해주세요. 불편을 끼쳐드려 죄송합니다.</Text> : <Text style={styles.emptyText}/>}
                 <TextInput style={styles.emailInput} placeholder={'E-mail'} onChangeText={changeEmail} value={email} textContentType={'email'} autoComplete={'email'} />
                 <TextInput style={styles.pwInput} placeholder={'Password'} onChangeText={changePw} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
-                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20, alignItems: 'center'}}>
+                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20, marginTop: 10, alignItems: 'center'}}>
                     <CheckBox isChecked={autoLogin} onClick={() => setAutoLogin(!autoLogin)} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'}/>
                     <Text style={{textAlignVertical: 'center', color: 'black', fontFamily: 'Content', fontSize: 10, opacity: 0.6 }}>자동 로그인</Text>
                 </View>

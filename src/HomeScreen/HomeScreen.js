@@ -18,12 +18,20 @@ const getItem = Storage.default.getItem;
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-export default function HomeScreen({route, navigation}) {
+export default function HomeScreen(props) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
     let [addOpen, setAddOpen] = useState(false);
     let [isFirstFocus, setIsFirstFocus] = useState(true);
-    const { accountId, country, university, scheduleProps, /*authProps*/ } = route.params;
+    
+    const accountId = props.accountId;
+    const country = props.country;
+    const university = props.university;
+    const scheduleProps = props.scheduleProps;
+
+    if (props.option.addTask) {
+        setAddOpen(true);
+    }
 
     const setterFunc = (schedule) => {
         if (schedule === undefined || schedule === null) {
@@ -70,12 +78,16 @@ export default function HomeScreen({route, navigation}) {
 
     const createElement = (scheduleData) => {
         const finalData = [[],[],[],[],[],[],[]]
+        if (scheduleData == undefined) {
+            return;
+        }
         for (let i = 0; i < scheduleData.length; i++) {
             let dailySchedule = [];
             const dailyData = scheduleData[i];
             for (let j = 0; j < dailyData.length; j++) {
                 const isNow = checkNow(i, dailyData[j]['time'][0], dailyData[j]['time'][1]);
                 const category = dailyData[j]['category'].name
+                console.log(dailyData[j])
                 dailySchedule.push(<Event current={isNow} name={dailyData[j]['title']} venue={dailyData[j]['venue']} startTime={dailyData[j]['time'][0]} endTime={dailyData[j]['time'][1]} category={category}/>)
             }
             finalData[i] = dailySchedule;
@@ -125,7 +137,10 @@ export default function HomeScreen({route, navigation}) {
 
     return (
         <View>
-            <AddTask isVisible={addOpen} closeModal={() => setAddOpen(false)} university={university} country={country} accountId={accountId} />
+            <AddTask isVisible={addOpen} closeModal={async () => {
+                setAddOpen(false)
+                await fetchSchedule(accountId, country, university, setterFunc)
+            }} university={props.university} country={props.country} accountId={props.accountId} />
             <Text style={styles.date}>{date}{date % 10 === 1 ? "st" : date % 10 === 2 ? 'nd' : date % 10 === 3 ? 'rd' : 'th'} {months[month]} {year}</Text>
             <Text style={styles.scheduleText}>Schedule</Text>
             <TouchableOpacity style={styles.addTask} onPress={onPressAddTask}><Text style={styles.addTaskText}>+ Add Tasks</Text></TouchableOpacity>

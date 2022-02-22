@@ -14,7 +14,7 @@ import MatesRequest from "./MatesRequest";
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-export default function MatesScreen({ navigation }) {
+export default function MatesScreen(props) {
   const [inputText, setInputText] = useState(false);
   let [selectedOption, setSelectedOption] = useState(1);
 
@@ -23,6 +23,10 @@ export default function MatesScreen({ navigation }) {
   const onPressMessage = () => {};
 
   const { search } = inputText;
+
+  if (props.option.index >= 0) {
+    setSelectedOption(props.option.index)
+  }
 
   updateSearch = (search) => {
     useState({ search });

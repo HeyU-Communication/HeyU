@@ -1,4 +1,6 @@
-import React from 'react';
+//import 'react-native-gesture-handler';
+
+import React, {useEffect, useState} from 'react';
 import StartScreen from './src/StartScreen/StartScreen';
 import HomeScreen from './src/HomeScreen/HomeScreen';
 import ScheduleScreen from './src/ScheduleScreen/ScheduleScreen';
@@ -7,13 +9,17 @@ import BoardScreen from "./src/BoardScreen/BoardScreen";
 import LoginScreen from './src/LoginScreen/LoginScreen';
 import RegistrationScreen from './src/LoginScreen/RegistrationScreen';
 import FindCredentialScreen from './src/LoginScreen/FindCredentialScreen';
+import ProfileBrief from './src/ProfileBrief/ProfileBrief';
+import AppMap from './src/AppMap/AppMap';
 import MyTabBar from './src/components/MyTabBar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView, } from 'react-native';
+import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from "expo-font";
+//import { createDrawerNavigator } from '@react-navigation/drawer';
+
 import firebaseConfig from "./src/components/FirebaseConfig";
 import * as firebase from "firebase";
 
@@ -23,19 +29,47 @@ const Stack = createNativeStackNavigator();
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-function MainScreens() {
+function MainScreens(props) {
+  const { accountId, country, university, scheduleProps, nickname, studentId } = props;
+
+  const [homeOption, setHomeOption] = useState({})
+  const [scheduleOption, setScheduleOption] = useState({})
+  const [matesOption, setMatesOption] = useState({})
+  const [boardOption, setBoardOption] = useState({})
+  const [childNavigation, setChildNavigation] = useState(null)
+
+  console.log(props)
+
+  if (props.option.screen == 'Board') {
+    setBoardOption(props.option.option);
+  }
+  else if (props.option.screen == 'Home') {
+    setHomeOption(props.option.option);
+  }
+  else if (props.option.screen == 'Schedule') {
+    setScheduleOption(props.option.option);
+  }
+  else if (props.option.screen == 'Mates') {
+    setMatesOption(props.option.option);
+    Tab.Navigator.pop()
+    Tab.Navigator.push("Mates")
+  }
+
+  const openAppMap = props.openAppMap;
+  const openProfile = props.openProfileBrief;
+
   return (
     <View style={styles.view}>
       <StatusBar style="auto" backgroundColor="#F5DF4D" />
       <View style={styles.upperBar}>
-        <TouchableOpacity style={styles.menuHighlight}>
+        <TouchableOpacity style={styles.menuHighlight} onPress={openAppMap}>
           <Image
             style={styles.menu}
             source={require("./src/HomeScreen/Menu.png")}
           />
         </TouchableOpacity>
         <Text style={styles.heyu}>HEY! U</Text>
-        <TouchableOpacity style={styles.profileHighlight}>
+        <TouchableOpacity style={styles.profileHighlight} onPress={openProfile}>
           <Image
             style={styles.profile}
             source={require("./src/HomeScreen/Profile.png")}
@@ -44,18 +78,47 @@ function MainScreens() {
       </View>
       <Tab.Navigator
         name="MainScreens"
-        initialRouteName="Home"
+        initialRouteName={props.option.screen}
         backBehavior="firstRoute"
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <MyTabBar {...props} />}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Schedule" component={ScheduleScreen} />
-        <Tab.Screen name="Mates" component={MatesScreen} />
-        <Tab.Screen name="Board" component={BoardScreen} />
+        <Tab.Screen name="Home" children={() => <HomeScreen accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} option={homeOption}/>} />
+        <Tab.Screen name="Schedule" children={() => <ScheduleScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={scheduleOption}/>} />
+        <Tab.Screen name="Mates" children={() => <MatesScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={matesOption}/>} />
+        <Tab.Screen name="Board" children={() => <BoardScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={boardOption}/>} />
       </Tab.Navigator>
     </View>
   );
+}
+
+function CoreScreens({route, navigation}) {
+  console.log(route.params)
+  const { accountId, country, university, scheduleProps, nickname, studentId } = route.params.params;
+
+  const [selected, setSelected] = useState({screen: 'default'});
+
+  function openAppMap() {
+    navigation.navigate("Map")
+  }
+
+  function openProfileBrief() {
+    navigation.navigate("ProfileBrief")
+  }
+
+  return (
+    <Stack.Navigator initialRouteName='Home' backBehavior='initialRoute' screenOptions={{headerShown: false}} >
+      <Stack.Screen name={"Home"}  children={() => <MainScreens accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} openAppMap={openAppMap} openProfileBrief={openProfileBrief} option={selected}/> } />
+      <Stack.Screen name={'Map'} options={{
+        animation: 'slide_from_left',
+        presentation: 'containedTransparentModal'
+      }} children={() => <AppMap accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} setSelected={setSelected}/>} />
+      <Stack.Screen name={'ProfileBrief'} options={{
+        animation: 'slide_from_right',
+        presentation: 'containedTransparentModal'
+      }} children={() => <ProfileBrief accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId}/>} />
+    </Stack.Navigator>
+  )
 }
 
 export default function App() {
@@ -81,7 +144,7 @@ export default function App() {
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
           <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
           <Stack.Screen name="FindCredentialScreen" component={FindCredentialScreen} />
-          <Stack.Screen name="MainScreens" component={MainScreens} />
+          <Stack.Screen name="MainScreens" component={CoreScreens} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -89,6 +152,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '100%',
+  },
   view: {
     width: width,
     height: "100%",
