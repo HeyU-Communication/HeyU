@@ -58,123 +58,87 @@ export default function LoginScreen({ route, navigation }) {
     }
   }, []);
 
-  const handleSubmit = () => {
-    if (passwordFailed || emailFailed || emailFormatFailed || otherFailed) {
-      return;
+    const handleSubmit = () => {
+        setLoading(true)
+        authService.signInWithEmailAndPassword(email, pw).then(async (userCredential) => {
+            const user = userCredential.user
+            
+            if (! user.emailVerified) {
+                Alert.alert('로그인 실패', '계정의 이메일이 인증되지 않았어요. 이메일을 인증해주세요. ')
+                setLoading(false);
+                return;
+            }
+
+            dbService.collection('profileRef').doc(user.uid).get().then(snapshot => {
+                const data = snapshot.data();
+                let nowDate = new Date();
+                console.log(data)
+                dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
+                    const regularData = [];
+                    querySnapshot.forEach(doc => {
+                        regularData.push(doc.data());
+                    })
+                    dbService.collection('profile').doc(data.country).collection(data.university).doc(data.uid).collection('episodic').where('endDate', '>', nowDate).onSnapshot(async (querySnapshot2) => {
+                        const episodicData = [];
+                        querySnapshot2.forEach(doc => {
+                            const tempData = doc.data();
+                            episodicData.push(tempData);
+                        })
+
+                        let myScheduleData = [];
+                        //Process regular schedules
+                        const regData = await processRegularFromToday(regularData);
+                        //Process epidosic schedules
+                        const epiData = await processEpisodicFromToday(episodicData);
+                        myScheduleData = regData.concat(epiData)
+                        myScheduleData = sortIntoDays(myScheduleData);
+                        myScheduleData = sortEachDays(myScheduleData);
+                        setEmailFailed(false);
+                        setPasswordFailed(false);
+                        setEmailFormatFailed(false);
+                        setOtherFailed(false);
+                        setLoading(false);
+                        await storeString('email', email);
+                        await storeString('password', pw);
+                        await storeString('autologin', autoLogin ? 'true' : 'false');
+                        navigation.navigate("MainScreens", {
+                            accountId: data.uid,
+                            country: data.country,
+                            university: data.university,
+                            nickname: data.nickname,
+                            studentId: data.studentId,
+                            scheduleProps: myScheduleData,
+                        })
+                    })
+                })
+            });
+        }).catch(err => {
+            setLoading(false);
+            setEmailFailed(false);
+            setPasswordFailed(false);
+            setEmailFormatFailed(false);
+            setOtherFailed(false);
+            if (err.code = 'auth/wrong-password') {
+                if (err.message.includes('There is no user record corresponding to this identifier. The user may have been deleted.')) {
+                    setEmailFailed(true);
+                }
+                else if (err.message.includes('The password is invalid or the user does')) {
+                    setPasswordFailed(true);
+                }
+                else if (err.message.includes('The email address is badly formatted')) {
+                    setEmailFormatFailed(true);
+                } 
+                else {
+                    setOtherFailed(true);
+                    Alert.alert('오류', err.message)
+                }
+            }
+            else {
+                setOtherFailed(true);
+                Alert.alert('오류', err.message);
+            }
+        });
     }
-    setLoading(true);
-    authService
-      .signInWithEmailAndPassword(email, pw)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-
-        if (!user.emailVerified) {
-          Alert.alert(
-            "로그인 실패",
-            "계정의 이메일이 인증되지 않았어요. 이메일을 인증해주세요. "
-          );
-          setLoading(false);
-          return;
-        }
-
-        dbService
-          .collection("profileRef")
-          .doc(user.uid)
-          .get()
-          .then(async (snapshot) => {
-            const data = snapshot.data();
-            let nowDate = new Date();
-            dbService
-              .collection("profile")
-              .doc(data.country)
-              .collection(data.university)
-              .doc(data.uid)
-              .collection("regular")
-              .where("repEndDate", ">", nowDate)
-              .onSnapshot((querySnapshot) => {
-                const regularData = [];
-                querySnapshot.forEach((doc) => {
-                  regularData.push(doc.data());
-                });
-                dbService
-                  .collection("profile")
-                  .doc(data.country)
-                  .collection(data.university)
-                  .doc(data.uid)
-                  .collection("episodic")
-                  .where("endDate", ">", nowDate)
-                  .onSnapshot(async (querySnapshot2) => {
-                    const episodicData = [];
-                    querySnapshot2.forEach((doc) => {
-                      const tempData = doc.data();
-                      episodicData.push(tempData);
-                    });
-
-                    let myScheduleData = [];
-                    //Process regular schedules
-                    const regData = await processRegularFromToday(regularData);
-                    //Process epidosic schedules
-                    const epiData = await processEpisodicFromToday(
-                      episodicData
-                    );
-                    myScheduleData = regData.concat(epiData);
-                    myScheduleData = sortIntoDays(myScheduleData);
-                    myScheduleData = sortEachDays(myScheduleData);
-                    setEmailFailed(false);
-                    setPasswordFailed(false);
-                    setEmailFormatFailed(false);
-                    setOtherFailed(false);
-                    setLoading(false);
-                    await storeString("email", email);
-                    await storeString("password", pw);
-                    await storeString(
-                      "autologin",
-                      autoLogin ? "true" : "false"
-                    );
-                    navigation.navigate("MainScreens", {
-                      screen: "Home",
-                      params: {
-                        accountId: data.uid,
-                        country: data.country,
-                        university: data.university,
-                        scheduleProps: myScheduleData,
-                      },
-                    });
-                  });
-              });
-          });
-      })
-      .catch((err) => {
-        setLoading(false);
-        setEmailFailed(false);
-        setPasswordFailed(false);
-        setEmailFormatFailed(false);
-        setOtherFailed(false);
-        if ((err.code = "auth/wrong-password")) {
-          if (
-            err.message.includes(
-              "There is no user record corresponding to this identifier. The user may have been deleted."
-            )
-          ) {
-            setEmailFailed(true);
-          } else if (
-            err.message.includes("The password is invalid or the user does")
-          ) {
-            setPasswordFailed(true);
-          } else if (
-            err.message.includes("The email address is badly formatted")
-          ) {
-            setEmailFormatFailed(true);
-          } else {
-            setOtherFailed(true);
-            Alert.alert("오류", err.message);
-          }
-        } else {
-          setOtherFailed(true);
-          Alert.alert("오류", err.message);
-        }
-      });
-  };
 
   const handleFindIdPw = () => {
     navigation.navigate("FindCredentialScreen");
@@ -184,134 +148,40 @@ export default function LoginScreen({ route, navigation }) {
     navigation.navigate("RegistrationScreen");
   };
 
-  const handleSetAutoLogin = () => {
-    setAutoLogin(!autoLogin);
-  };
 
-  return (
-    <View style={styles.container}>
-      {loading ? (
-        <View>
-          <CircleSnail
-            animating={loading}
-            style={styles.circleSnailStyle}
-            color={"#FFDE00"}
-          />
+    const handleSetAutoLogin = () => {
+        setAutoLogin(!autoLogin)
+    }
+    
+    return (
+        <View style={styles.container}>
+            {loading ? 
+            <View><CircleSnail animating={loading} style={styles.circleSnailStyle} color={'#FFDE00'}/></View>
+            : 
+                <View>
+                <Image style={styles.image} source={require('./StartLogo.png')} />
+                <Text style={styles.description}>유학생들을 위한 커뮤니티</Text>
+                <Text style={styles.title}>HEY ! U</Text>
+                {emailFailed || passwordFailed || emailFormatFailed || otherFailed ? <Text style={styles.emptyText}/> : <Text />}
+                {emailFailed ? <Text style={styles.errorMessage}>해당 이메일이 존재하지 않습니다. 다시 확인해주세요.</Text> : <Text style={styles.emptyText}/>}
+                {passwordFailed ? <Text style={styles.errorMessage}>비밀번호가 부정확합니다. 다시 확인해주세요.</Text> : <Text style={styles.emptyText}/>}
+                {emailFormatFailed ? <Text style={styles.errorMessage}>이메일의 형식이 부정확합니다. 다시 확인해주세요.</Text> : <Text style={styles.emptyText}/>}
+                {otherFailed ? <Text style={styles.errorMessage}>알 수 없는 오류입니다. 잠시 후 재시도하세요. 문제가 계속된다면 오류메시지를 캡쳐해 신고해주세요. 불편을 끼쳐드려 죄송합니다.</Text> : <Text style={styles.emptyText}/>}
+                <TextInput style={styles.emailInput} placeholder={'E-mail'} onChangeText={changeEmail} value={email} textContentType={'email'} autoComplete={'email'} />
+                <TextInput style={styles.pwInput} placeholder={'Password'} onChangeText={changePw} value={pw} textContentType={"password"} secureTextEntry={true} autoComplete={'password'}/>
+                <View style={{marginLeft: width * 0.08, display: 'flex', flexDirection: 'row', marginBottom: 20, marginTop: 10, alignItems: 'center'}}>
+                    <CheckBox isChecked={autoLogin} onClick={() => setAutoLogin(!autoLogin)} checkedCheckBoxColor={'#FFDE00'} uncheckedCheckBoxColor={'#FFDE00'}/>
+                    <Text style={{textAlignVertical: 'center', color: 'black', fontFamily: 'Content', fontSize: 10, opacity: 0.6 }}>자동 로그인</Text>
+                </View>
+                <TouchableOpacity style={styles.submit} onPress={handleSubmit}><Text style={{color: 'white', fontFamily: 'Candal', fontSize: 10,}}>Login</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.findCredential} onPress={handleFindIdPw}><Text style={{color: '#959595', fontFamily: 'Candal', fontSize: 10}}>Lost E-mail / Password</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.registration} onPress={handleRegistration}><Text style={{color: '#959595', fontFamily: 'Candal', fontSize: 10}}>Register</Text></TouchableOpacity>
+            </View>
+            }
+            
+
         </View>
-      ) : (
-        <View>
-          <Image style={styles.image} source={require("./StartLogo.png")} />
-          <Text style={styles.description}>유학생들을 위한 커뮤니티</Text>
-          <Text style={styles.title}>HEY ! U</Text>
-          {emailFailed || passwordFailed || emailFormatFailed || otherFailed ? (
-            <Text style={styles.emptyText} />
-          ) : (
-            <Text />
-          )}
-          {emailFailed ? (
-            <Text style={styles.errorMessage}>
-              해당 이메일이 존재하지 않습니다. 다시 확인해주세요.
-            </Text>
-          ) : (
-            <Text style={styles.emptyText} />
-          )}
-          {passwordFailed ? (
-            <Text style={styles.errorMessage}>
-              비밀번호가 부정확합니다. 다시 확인해주세요.
-            </Text>
-          ) : (
-            <Text style={styles.emptyText} />
-          )}
-          {emailFormatFailed ? (
-            <Text style={styles.errorMessage}>
-              이메일의 형식이 부정확합니다. 다시 확인해주세요.
-            </Text>
-          ) : (
-            <Text style={styles.emptyText} />
-          )}
-          {otherFailed ? (
-            <Text style={styles.errorMessage}>
-              알 수 없는 오류입니다. 잠시 후 재시도하세요. 문제가 계속된다면
-              오류메시지를 캡쳐해 신고해주세요. 불편을 끼쳐드려 죄송합니다.
-            </Text>
-          ) : (
-            <Text style={styles.emptyText} />
-          )}
-          <TextInput
-            style={styles.emailInput}
-            placeholder={"E-mail"}
-            onChangeText={changeEmail}
-            value={email}
-            textContentType={"email"}
-            autoComplete={"email"}
-          />
-          <TextInput
-            style={styles.pwInput}
-            placeholder={"Password"}
-            onChangeText={changePw}
-            value={pw}
-            textContentType={"password"}
-            secureTextEntry={true}
-            autoComplete={"password"}
-          />
-          <View
-            style={{
-              marginLeft: width * 0.08,
-              display: "flex",
-              flexDirection: "row",
-              marginBottom: 20,
-              alignItems: "center",
-            }}
-          >
-            <CheckBox
-              isChecked={autoLogin}
-              onClick={() => setAutoLogin(!autoLogin)}
-              checkedCheckBoxColor={"#FFDE00"}
-              uncheckedCheckBoxColor={"#FFDE00"}
-            />
-            <Text
-              style={{
-                textAlignVertical: "center",
-                color: "black",
-                fontFamily: "Content",
-                fontSize: 10,
-                opacity: 0.6,
-              }}
-            >
-              자동 로그인
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
-            <Text
-              style={{ color: "white", fontFamily: "Candal", fontSize: 10 }}
-            >
-              Login
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.findCredential}
-            onPress={handleFindIdPw}
-          >
-            <Text
-              style={{ color: "#959595", fontFamily: "Candal", fontSize: 10 }}
-            >
-              Lost E-mail / Password
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.registration}
-            onPress={handleRegistration}
-          >
-            <Text
-              style={{ color: "#959595", fontFamily: "Candal", fontSize: 10 }}
-            >
-              Register
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+      ) 
 }
 
 const styles = StyleSheet.create({

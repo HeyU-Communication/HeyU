@@ -18,8 +18,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.heyu.communication",
-      "googleServiceFile": "./assets/JSONs/iOS/GoogleService-Info.plist"
+      "bundleIdentifier": "com.heyu.communication"
     },
     "android": {
       "adaptiveIcon": {

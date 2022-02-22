@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Async, Alert } from 'react-native';
 
 export default function Event(props) {
 

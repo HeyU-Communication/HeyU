@@ -14,12 +14,24 @@ import MatesRequest from "./MatesRequest";
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-export default function MatesScreen({ navigation }) {
-  let [selectedOption, setSelectedOption] = useState(0);
+
+export default function MatesScreen(props) {
+  const [inputText, setInputText] = useState(false);
+  let [selectedOption, setSelectedOption] = useState(1);
 
   const matesBar = ["검색", "친구", "친구요청"];
 
   const onPressMessage = () => {};
+
+  const { search } = inputText;
+
+  if (props.option.index >= 0) {
+    setSelectedOption(props.option.index)
+  }
+
+  updateSearch = (search) => {
+    useState({ search });
+  };
 
   return (
     <View>
