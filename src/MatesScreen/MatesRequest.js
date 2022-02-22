@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 
 const DATA = [

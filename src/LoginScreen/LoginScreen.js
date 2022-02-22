@@ -1,27 +1,45 @@
-import React, {useState, useEffect } from 'react';
-import { StyleSheet, Text, Image, View, Dimensions, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { authService, dbService, fetchSchedule } from '../components/FirebaseFunction';
-import { CircleSnail } from 'react-native-progress';
-const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height;
-import { processEpisodicFromToday, processRegularFromToday, sortEachDays, sortIntoDays } from '../components/TaskProcess';
-import { storeJSON, storeString } from '../components/StorageFunctions';
-import CheckBox from 'react-native-check-box'
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  Image,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from "react-native";
+import {
+  authService,
+  dbService,
+  fetchSchedule,
+} from "../components/FirebaseFunction";
+import { CircleSnail } from "react-native-progress";
+const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
+import {
+  processEpisodicFromToday,
+  processRegularFromToday,
+  sortEachDays,
+  sortIntoDays,
+} from "../components/TaskProcess";
+import { storeJSON, storeString } from "../components/StorageFunctions";
+import CheckBox from "react-native-check-box";
 
-export default function LoginScreen({route, navigation}) {
-    const [email, changeEmail] = useState("")
-    const [pw, changePw] = useState("")
-    const [emailFailed, setEmailFailed] = useState(false);
-    const [passwordFailed, setPasswordFailed] = useState(false);
-    const [emailFormatFailed, setEmailFormatFailed] = useState(false);
-    const [otherFailed, setOtherFailed] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [autoLogin, setAutoLogin] = useState(false);
+export default function LoginScreen({ route, navigation }) {
+  const [email, changeEmail] = useState("");
+  const [pw, changePw] = useState("");
+  const [emailFailed, setEmailFailed] = useState(false);
+  const [passwordFailed, setPasswordFailed] = useState(false);
+  const [emailFormatFailed, setEmailFormatFailed] = useState(false);
+  const [otherFailed, setOtherFailed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
 
-    useEffect(() => {
-        const user = authService.currentUser;
-        if (user) {
-            /*setLoading(true)
+  useEffect(() => {
+    const user = authService.currentUser;
+    if (user) {
+      /*setLoading(true)
             dbService.collection('profileRef').doc(user.uid).get().then(async snapshot => {
                 const data = snapshot.data();
                 const setter = (myScheduleData) => {
@@ -37,8 +55,8 @@ export default function LoginScreen({route, navigation}) {
                 }
                 await fetchSchedule(data.uid, data.country, data.university, setter);
             })*/
-        }
-    }, [])
+    }
+  }, []);
 
     const handleSubmit = () => {
         setLoading(true)
@@ -122,13 +140,14 @@ export default function LoginScreen({route, navigation}) {
         });
     }
 
-    const handleFindIdPw = () => {
-        navigation.navigate("FindCredentialScreen")
-    }
+  const handleFindIdPw = () => {
+    navigation.navigate("FindCredentialScreen");
+  };
 
-    const handleRegistration = () => {
-        navigation.navigate("RegistrationScreen");
-    }
+  const handleRegistration = () => {
+    navigation.navigate("RegistrationScreen");
+  };
+
 
     const handleSetAutoLogin = () => {
         setAutoLogin(!autoLogin)
@@ -160,133 +179,133 @@ export default function LoginScreen({route, navigation}) {
             </View>
             }
             
-            
+
         </View>
-    )
+      ) 
 }
 
 const styles = StyleSheet.create({
-    container: {
-        position: 'absolute',
-        top: '15%',
-    },
-    image: {
-        width: 107,
-        height: 120,
-        position: 'relative',
-        left: (width - 100) / 2,
-    },
-    description: {
-        width: width,
-        textAlign: 'center',
-        color: '#424242',
-        fontFamily: 'AbhayaLibre_ExtraBold',
-        marginTop: 20,
-        fontSize: 10,
-    },
-    title: {
-        width: '100%',
-        textAlign: 'center',
-        fontFamily: 'Candal',
-        marginTop: 20,
-        color: '#FFDE00',
-        fontSize: 20,
-    },
-    errorMessage: {
-        width: '100%',
-        textAlign: 'center',
-        fontFamily: 'Candal',
-        fontSize: 10,
-        color: 'red',
-        marginTop: 10,
-        marginBottom: 5,
-    },
-    emptyText: {
-        height: 0,
-        width: 0,
-        display: 'none',
-    },
-    emailInput: {
-        width: width * 0.84,
-        height: 40,
-        backgroundColor: '#E1E1E1',
-        left: width * 0.08,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        marginBottom: 20,
-        fontFamily: 'Candal',
-        fontSize: 10,
-    },
-    pwInput: {
-        width: width * 0.84,
-        height: 40,
-        backgroundColor: '#E1E1E1',
-        left: width * 0.08,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        marginBottom: 5,
-        fontFamily: 'Candal',
-        fontSize: 10,
-    },
-    submit: {
-        width: width * 0.84,
-        height: 40,
-        backgroundColor: '#F5DF4D',
-        left: width * 0.08,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        alignItems: 'center',
-        paddingTop: 12,
-        marginBottom: 20,
-    },
-    findCredential: {
-        width: width * 0.84,
-        height: 40,
-        borderColor: '#F5DF4D',
-        borderWidth: 1,
-        backgroundColor: 'white',
-        left: width * 0.08,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        alignItems: 'center',
-        paddingTop: 12,
-        marginBottom: 20,
-    },
-    registration: {
-        width: width * 0.84,
-        height: 40,
-        borderColor: '#F5DF4D',
-        borderWidth: 1,
-        backgroundColor: 'white',
-        left: width * 0.08,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        alignItems: 'center',
-        paddingTop: 12,
-    },
-    circleSnailStyle: {
-        position: 'absolute',
-        left: (width - 40) / 2,
-        top: ((height - 40) / 2) - (height * 0.15),
-    }
-})
+  container: {
+    position: "absolute",
+    top: "15%",
+  },
+  image: {
+    width: 107,
+    height: 120,
+    position: "relative",
+    left: (width - 100) / 2,
+  },
+  description: {
+    width: width,
+    textAlign: "center",
+    color: "#424242",
+    fontFamily: "AbhayaLibre_ExtraBold",
+    marginTop: 20,
+    fontSize: 10,
+  },
+  title: {
+    width: "100%",
+    textAlign: "center",
+    fontFamily: "Candal",
+    marginTop: 20,
+    color: "#FFDE00",
+    fontSize: 20,
+  },
+  errorMessage: {
+    width: "100%",
+    textAlign: "center",
+    fontFamily: "Candal",
+    fontSize: 10,
+    color: "red",
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  emptyText: {
+    height: 0,
+    width: 0,
+    display: "none",
+  },
+  emailInput: {
+    width: width * 0.84,
+    height: 40,
+    backgroundColor: "#E1E1E1",
+    left: width * 0.08,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 20,
+    fontFamily: "Candal",
+    fontSize: 10,
+  },
+  pwInput: {
+    width: width * 0.84,
+    height: 40,
+    backgroundColor: "#E1E1E1",
+    left: width * 0.08,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 5,
+    fontFamily: "Candal",
+    fontSize: 10,
+  },
+  submit: {
+    width: width * 0.84,
+    height: 40,
+    backgroundColor: "#F5DF4D",
+    left: width * 0.08,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    alignItems: "center",
+    paddingTop: 12,
+    marginBottom: 20,
+  },
+  findCredential: {
+    width: width * 0.84,
+    height: 40,
+    borderColor: "#F5DF4D",
+    borderWidth: 1,
+    backgroundColor: "white",
+    left: width * 0.08,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    alignItems: "center",
+    paddingTop: 12,
+    marginBottom: 20,
+  },
+  registration: {
+    width: width * 0.84,
+    height: 40,
+    borderColor: "#F5DF4D",
+    borderWidth: 1,
+    backgroundColor: "white",
+    left: width * 0.08,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    alignItems: "center",
+    paddingTop: 12,
+  },
+  circleSnailStyle: {
+    position: "absolute",
+    left: (width - 40) / 2,
+    top: (height - 40) / 2 - height * 0.15,
+  },
+});

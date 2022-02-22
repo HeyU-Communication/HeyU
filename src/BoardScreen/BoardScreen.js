@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Dimensions,
-  FlatList,
   TouchableOpacity,
 } from "react-native";
 import PostList from "./PostList";
@@ -13,7 +12,6 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 export default function BoardScreen({ navigation }) {
-
   const onPressBoardTitle = () => {};
   const onPressMyPost = () => {};
   const onPressPopular = () => {};
