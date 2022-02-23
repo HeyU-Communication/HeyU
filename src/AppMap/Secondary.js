@@ -34,7 +34,10 @@ export default function Secondary(props) {
     })
 
     return (
-        <TouchableOpacity style={styles.container} onPress={() => props.onPress(props.to)}>
+        <TouchableOpacity style={styles.container} onPress={() => {
+            props.setSelected(props.to)
+            props.closeSide()
+            }}>
             <Text style={styles.title}>{props.title}</Text>
             <Text style={styles.description}>{props.description}</Text>
         </TouchableOpacity>
