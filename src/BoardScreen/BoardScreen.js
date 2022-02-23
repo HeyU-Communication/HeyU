@@ -1,3 +1,4 @@
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -11,11 +12,24 @@ import PostList from "./PostList";
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-export default function BoardScreen({ navigation }) {
+export default function BoardScreen(props) {
   const onPressBoardTitle = () => {};
   const onPressMyPost = () => {};
   const onPressPopular = () => {};
   const onPressTitle = () => {};
+
+  let [option, setOption] = useState({})
+  let [selectedBoard, setSelectedBoard] = useState(0);
+
+  if (props.option != option) {
+    setOption(props.option);
+    if (props.option.order != undefined) {
+      setSelectedBoard(props.option.order);
+    }
+    else {
+      setSelectedBoard(0);
+    }
+  }
 
   return (
     <View>

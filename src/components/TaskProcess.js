@@ -309,13 +309,7 @@ export async function processRegular(regularData) {
             let initiator = false;
             let between = daysBetween(tempStart, tempEnd);
             for (let j = 0; j < 7; j++) {
-                console.log(now)
-                console.log(tempStart)
-                console.log((1000 * 60 * 60 * 24 * 14))
-                console.log(((now - tempStart) / (1000 * 60 * 60 * 24 * 14)))
-                console.log(tempEnd - tempStart)
                 if (((now - tempStart) % (1000 * 60 * 60 * 24 * 14)) <= tempEnd - tempStart || (initiator && counter <= between)) {
-                    console.log("Entered IF")
                     initiator = true;
                     let time = [];
                     counter++;

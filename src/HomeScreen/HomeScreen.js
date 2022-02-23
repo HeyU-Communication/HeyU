@@ -10,7 +10,7 @@ import Modal from "react-native-modal";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { getCalendarDateString } from 'react-native-calendars/src/services';
 import { assertLiteral } from '@babel/types';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 const setItem = Storage.default.setItem;
 const getItem = Storage.default.getItem;
@@ -22,16 +22,22 @@ export default function HomeScreen(props) {
     let [selectedDay, setSelectedDay] = useState(0);
     let [schedule, setSchedule] = useState([[],[],[],[],[],[],[]]);
     let [addOpen, setAddOpen] = useState(false);
-    let [isFirstFocus, setIsFirstFocus] = useState(true);
-    
+    let [option, setOption] = useState({})
+
+    if (props.option != option) {
+        setOption(props.option);
+    }
+
     const accountId = props.accountId;
     const country = props.country;
     const university = props.university;
     const scheduleProps = props.scheduleProps;
 
-    if (props.option.addTask) {
-        setAddOpen(true);
-    }
+    useEffect(() => {
+        if (option.addTask) {
+            setAddOpen(true);
+        }
+    }, [option])
 
     const setterFunc = (schedule) => {
         if (schedule === undefined || schedule === null) {
@@ -64,7 +70,6 @@ export default function HomeScreen(props) {
         setSchedule(createElement(scheduleProps));
         const timer = setInterval(async () => {
             const schedule = await fetchSchedule(accountId, country, university, setterFunc)
-            //setterFunc(schedule);
         }, 60 * 1000)
         return () => {
             clearInterval(timer);
@@ -87,7 +92,6 @@ export default function HomeScreen(props) {
             for (let j = 0; j < dailyData.length; j++) {
                 const isNow = checkNow(i, dailyData[j]['time'][0], dailyData[j]['time'][1]);
                 const category = dailyData[j]['category'].name
-                console.log(dailyData[j])
                 dailySchedule.push(<Event current={isNow} name={dailyData[j]['title']} venue={dailyData[j]['venue']} startTime={dailyData[j]['time'][0]} endTime={dailyData[j]['time'][1]} category={category}/>)
             }
             finalData[i] = dailySchedule;

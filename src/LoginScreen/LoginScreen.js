@@ -72,7 +72,6 @@ export default function LoginScreen({ route, navigation }) {
             dbService.collection('profileRef').doc(user.uid).get().then(snapshot => {
                 const data = snapshot.data();
                 let nowDate = new Date();
-                console.log(data)
                 dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
                     const regularData = [];
                     querySnapshot.forEach(doc => {

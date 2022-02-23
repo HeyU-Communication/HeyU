@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Image,
@@ -10,6 +10,7 @@ import {
 import SearchMates from "./SearchMates";
 import MatesList from "./MatesList";
 import MatesRequest from "./MatesRequest";
+import { useNavigation , useFocusEffect} from "@react-navigation/native";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -18,20 +19,29 @@ const height = Dimensions.get("window").height;
 export default function MatesScreen(props) {
   const [inputText, setInputText] = useState(false);
   let [selectedOption, setSelectedOption] = useState(1);
+  let [option, setOption] = useState({})
 
   const matesBar = ["검색", "친구", "친구요청"];
 
   const onPressMessage = () => {};
 
+
   const { search } = inputText;
 
-  if (props.option.index >= 0) {
-    setSelectedOption(props.option.index)
+  if (props.option != option) {
+    setOption(props.option);
+    if (props.option.index == undefined) {
+      setSelectedOption(1);
+    }
+    else {
+      setSelectedOption(props.option.index);
+    }
   }
 
   updateSearch = (search) => {
     useState({ search });
   };
+
 
   return (
     <View>
