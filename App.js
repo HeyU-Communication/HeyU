@@ -18,10 +18,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Dimensions, StyleSheet, Image, Text, TouchableOpacity, SafeAreaView} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from "expo-font";
-//import { createDrawerNavigator } from '@react-navigation/drawer';
-
-import firebaseConfig from "./src/components/FirebaseConfig";
-import * as firebase from "firebase";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
