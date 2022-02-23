@@ -4,7 +4,7 @@ import { Text, View, Dimensions, Image, ScrollView, StyleSheet, TouchableOpacity
 import { Divider } from 'react-native-elements/dist/divider/Divider';
 import { dbService, authService, fetchSchedule } from '../components/FirebaseFunction';
 import Calendar from './Calender';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { processEpisodicFromToday, processRegularFromToday, sortEachDays, sortIntoDays, processRegular, processEpisodic } from '../components/TaskProcess';
 import { genTimeBlock } from 'react-native-timetable';
 import days from '../components/days';
@@ -60,12 +60,15 @@ export default function ScheduleScreen(props) {
         dbService.collection('profile').doc(country).collection(university).doc(accountId).collection('friends').orderBy('order').onSnapshot(snapshot => {
             const len = snapshot.size
             let index = 0;
+            for (let i = 0; i < snapshot.size; i++) {
+                eventData.push({});
+                friendData.push({});
+            }
             snapshot.forEach(element => {
                 let startTime = "2399";
                 let endTime = "0000";
                 let {order, personalNickname} = element.data();
                 let friendId = element.id;
-                console.log(friendId)
                 let friendSchedule = [];
                 const weekStart = new Date();
                 weekStart.getDay() != 0 ? weekStart.setDate(weekStart.getDate() - weekStart.getDay()) : weekStart.setDate(weekStart.getDate() - 6)
@@ -238,8 +241,8 @@ export default function ScheduleScreen(props) {
                                     }
                                     friend['startTime'] = startTime;
                                     friend['endTime'] = endTime;
-                                    friendData.push(friend)
-                                    eventData.push(friendSchedule);
+                                    friendData.splice(order, 1, friend);
+                                    eventData.splice(order, 1, friendSchedule);
                                     index++;
 
                                     if (index == len) {
@@ -255,10 +258,6 @@ export default function ScheduleScreen(props) {
             })
         })
     }, []))
-
-    useEffect(() => {
-        //console.log(friendElements[selectedFriend].endTime)
-    })
 
     const styles = StyleSheet.create({
         container: {

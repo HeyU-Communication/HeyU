@@ -15,6 +15,7 @@
     "@react-navigation/drawer": "^6.3.1",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
+    "@reduxjs/toolkit": "^1.7.2",
     "@types/react": "^17.0.37",
     "@types/react-native": "^0.66.6",
     "expo": "~42.0.1",
@@ -45,6 +46,8 @@
     "react-native-svg": "^12.1.1",
     "react-native-timetable": "^1.0.4",
     "react-native-web": "~0.13.12",
+    "react-redux": "^7.2.6",
+    "redux-devtools": "^3.7.0",
     "styled-component": "^2.8.0",
     "styled-components": "^5.3.3"
   },

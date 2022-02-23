@@ -1,6 +1,8 @@
 //import 'react-native-gesture-handler';
 
-import React, {useEffect, useState} from 'react';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux'
+import React, {useEffect, useState, useReducer} from 'react';
 import StartScreen from './src/StartScreen/StartScreen';
 import HomeScreen from './src/HomeScreen/HomeScreen';
 import ScheduleScreen from './src/ScheduleScreen/ScheduleScreen';
@@ -25,30 +27,123 @@ const Stack = createNativeStackNavigator();
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
+/*class MainScreens extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      homeOption: {},
+      scheduleOption: {},
+      matesOption: {},
+      boardOption: {},
+      to: "Home",
+      tabNavigator: null,
+    }
+  }
+
+  static getDerivedStateFromProps(newProps, prevState) {
+    console.log("New Props: ")
+    console.log(newProps.option);    
+    if (newProps.option.screen == "Home") {
+      return { homeOption: newProps.option.option, to: "Home"}
+    }
+    if (newProps.option.screen == "Schedule") {
+      return {to: 'Schedule' }
+    }
+    if (newProps.option.screen == "Mates") {
+      return { matesOption: newProps.option.option, to: "Mates"}
+    }
+    if (newProps.option.screen == 'Board') {
+      return {boardOption: newProps.option.option, to: "Board"}
+    }
+    return prevState;
+  }
+
+  componentDidUpdate() {
+    console.log("Updated to: " + this.state.to);
+  }
+
+  render = () => {
+    const accountId = this.props.accountId;
+    const country = this.props.country;
+    const university = this.props.university;
+    const scheduleProps = this.props.scheduleProps;
+    const nickname = this.props.nickname;
+    const studentId = this.props.studentId;
+
+    const setTo = (screenName) => {
+      setToHelper(screenName)
+    }
+
+    const setToHelper = (screenName) => {
+      console.log("Set to helper: " + screenName)
+      this.setState({
+        to: screenName
+      })
+    }
+
+    return (
+      <View style={styles.view}>
+        <StatusBar style="auto" backgroundColor="#F5DF4D" />
+        <View style={styles.upperBar}>
+          <TouchableOpacity style={styles.menuHighlight} onPress={this.props.openAppMap}>
+            <Image
+              style={styles.menu}
+              source={require("./src/HomeScreen/Menu.png")}
+            />
+          </TouchableOpacity>
+          <Text style={styles.heyu}>HEY! U</Text>
+          <TouchableOpacity style={styles.profileHighlight} onPress={this.props.openProfile}>
+            <Image
+              style={styles.profile}
+              source={require("./src/HomeScreen/Profile.png")}
+            />
+          </TouchableOpacity>
+        </View>
+        <Tab.Navigator
+          name="MainScreens"
+          initialRouteName={this.props.option.screen}
+          backBehavior="firstRoute"
+          screenOptions={{ headerShown: false }}
+          tabBar={(props) => <MyTabBar {...props} setTo={setTo}/>}
+        >
+          <Tab.Screen name="Home" children={() => <HomeScreen accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} option={this.state.homeOption} to={this.state.to} ignored={this.state.ignored}/>} />
+          <Tab.Screen name="Schedule" children={() => <ScheduleScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={this.state.scheduleOption} to={this.state.to}  ignored={this.state.ignored}/>} />
+          <Tab.Screen name="Mates" children={() => <MatesScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={this.state.matesOption} to={this.state.to} ignored={this.state.ignored} />} />
+          <Tab.Screen name="Board" children={() => <BoardScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={this.state.boardOption} to={this.state.to} ignored={this.state.ignored} />} />
+        </Tab.Navigator>
+      </View>
+    )
+  }
+}*/
+
 function MainScreens(props) {
   const { accountId, country, university, scheduleProps, nickname, studentId } = props;
 
+  const [option, setOption] = useState({})
   const [homeOption, setHomeOption] = useState({})
   const [scheduleOption, setScheduleOption] = useState({})
   const [matesOption, setMatesOption] = useState({})
   const [boardOption, setBoardOption] = useState({})
-  const [childNavigation, setChildNavigation] = useState(null)
+  const [to, setTo] = useState("Home")
 
-  console.log(props)
-
-  if (props.option.screen == 'Board') {
-    setBoardOption(props.option.option);
-  }
-  else if (props.option.screen == 'Home') {
-    setHomeOption(props.option.option);
-  }
-  else if (props.option.screen == 'Schedule') {
-    setScheduleOption(props.option.option);
-  }
-  else if (props.option.screen == 'Mates') {
-    setMatesOption(props.option.option);
-    Tab.Navigator.pop()
-    Tab.Navigator.push("Mates")
+  if (option != props.option) {
+    setOption(props.option);
+    if (props.option.screen == 'Board') {
+      setBoardOption(props.option.option);
+      setTo("Board")
+    }
+    else if (props.option.screen == 'Home') {
+      setHomeOption(props.option.option);
+      setTo("Home")
+    }
+    else if (props.option.screen == 'Schedule') {
+      setScheduleOption(props.option.option);
+      setTo("Schedule")
+    }
+    else if (props.option.screen == 'Mates') {
+      setMatesOption(props.option.option);
+      setTo("Mates")
+    }
   }
 
   const openAppMap = props.openAppMap;
@@ -77,19 +172,18 @@ function MainScreens(props) {
         initialRouteName={props.option.screen}
         backBehavior="firstRoute"
         screenOptions={{ headerShown: false }}
-        tabBar={(props) => <MyTabBar {...props} />}
+        tabBar={(props) => <MyTabBar {...props} propsTo={to} propsSetTo={setTo}/>}
       >
         <Tab.Screen name="Home" children={() => <HomeScreen accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} option={homeOption}/>} />
-        <Tab.Screen name="Schedule" children={() => <ScheduleScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={scheduleOption}/>} />
-        <Tab.Screen name="Mates" children={() => <MatesScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={matesOption}/>} />
-        <Tab.Screen name="Board" children={() => <BoardScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={boardOption}/>} />
+        <Tab.Screen name="Schedule" children={() => <ScheduleScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={scheduleOption} />} />
+        <Tab.Screen name="Mates" children={() => <MatesScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={matesOption} />} />
+        <Tab.Screen name="Board" children={() => <BoardScreen accountId={accountId} country={country} university={university} nickname={nickname} studentId={studentId} option={boardOption} />} />
       </Tab.Navigator>
     </View>
   );
 }
 
 function CoreScreens({route, navigation}) {
-  console.log(route.params)
   const { accountId, country, university, scheduleProps, nickname, studentId } = route.params;
 
   const [selected, setSelected] = useState({screen: 'default'});
@@ -102,17 +196,21 @@ function CoreScreens({route, navigation}) {
     navigation.navigate("ProfileBrief")
   }
 
+  function closeSide() {
+    navigation.navigate("Home");
+  }
+
   return (
     <Stack.Navigator initialRouteName='Home' backBehavior='initialRoute' screenOptions={{headerShown: false}} >
       <Stack.Screen name={"Home"}  children={() => <MainScreens accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} openAppMap={openAppMap} openProfileBrief={openProfileBrief} option={selected}/> } />
       <Stack.Screen name={'Map'} options={{
         animation: 'slide_from_left',
         presentation: 'containedTransparentModal'
-      }} children={() => <AppMap accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} setSelected={setSelected}/>} />
+      }} children={() => <AppMap accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} setSelected={setSelected} closeSide={closeSide} />} />
       <Stack.Screen name={'ProfileBrief'} options={{
         animation: 'slide_from_right',
         presentation: 'containedTransparentModal'
-      }} children={() => <ProfileBrief accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId}/>} />
+      }} children={() => <ProfileBrief accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} closeSide={closeSide} />} />
     </Stack.Navigator>
   )
 }
@@ -130,18 +228,28 @@ export default function App() {
     Candal: require("./src/components/assets/fonts/Candal-Regular.ttf")
   });
 
+  const currentScreen = "Home";
+
+  function reducer(state = currentScreen, action) {
+    return state;
+  }
+
+  let store = createStore(reducer)
+
   if (!loaded) {
     return null;
   } else {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="StartScreen" backBehavior="none" screenOptions={{ headerShown: false, }}>
-          <Stack.Screen name="StartScreen" component={StartScreen}/>
-          <Stack.Screen name="LoginScreen" component={LoginScreen} />
-          <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
-          <Stack.Screen name="FindCredentialScreen" component={FindCredentialScreen} />
-          <Stack.Screen name="MainScreens" component={CoreScreens} />
-        </Stack.Navigator>
+        <Provider store={store}>
+          <Stack.Navigator initialRouteName="StartScreen" backBehavior="none" screenOptions={{ headerShown: false, }}>
+            <Stack.Screen name="StartScreen" component={StartScreen}/>
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+            <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
+            <Stack.Screen name="FindCredentialScreen" component={FindCredentialScreen} />
+            <Stack.Screen name="MainScreens" component={CoreScreens} />
+          </Stack.Navigator>
+        </Provider>
       </NavigationContainer>
     );
   }

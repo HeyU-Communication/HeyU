@@ -30,16 +30,16 @@ export default function AppMap(props) {
         <View style={styles.container}>
             <ProfileBadge country={props.country} university={props.university} studentId={props.studentId} accountId={props.accountId} nickname={props.nickname}/>
             <ScrollView style={styles.boardContainer}>
-                <Primary title={'홈'} description={''} hasBottomBorder={false} hasTopBorder={false} onPress={props.setSelected} to={{screen: "Home", option: {addTask: false}}}/>
-                <Secondary title={'일정 추가'} description={""} hasBottomBorder={true} onPress={props.setSelected} to={{screen: "Home", option: {addTask: true}}}/>
-                <Primary title={'스케쥴'} description={""} hasBottomBorder={true} onPress={props.setSelected} to={{screen: "Schedule",}}/>
-                <Primary title={'친구'} description={""} onPress={props.setSelected} to={{screen: "Mates", }}/>
-                <Secondary title={'친구 목록'} description={""} onPress={props.setSelected} to={{screen: "Mates", option: {index: 0}}}/>
-                <Secondary title={'친구 추가'} description={""} onPress={props.setSelected} to={{screen: "Mates", option: {index: 1}}}/>
-                <Secondary title={'친구 요청'} description={""}  hasBottomBorder={true} onPress={props.setSelected} to={{screen: "Mates", option: {index: 2}}}/>
-                <Primary title={'게시판'} description={""} onPress={props.setSelected} to={{screen: "Board", }}/>
+                <Primary title={'홈'} description={''} hasBottomBorder={false} hasTopBorder={false} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Home", option: {addTask: false}}}/>
+                <Secondary title={'일정 추가'} description={""} hasBottomBorder={true} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Home", option: {addTask: true}}}/>
+                <Primary title={'스케쥴'} description={""} hasBottomBorder={true} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Schedule",}}/>
+                <Primary title={'친구'} description={""} setSelected={props.setSelected} closeSide={props.closeSide} to={{screen: "Mates", }}/>
+                <Secondary title={'친구 목록'} description={""} setSelected={props.setSelected} closeSide={props.closeSide} to={{screen: "Mates", option: {index: 0}}}/>
+                <Secondary title={'친구 추가'} description={""} setSelected={props.setSelected} closeSide={props.closeSide} to={{screen: "Mates", option: {index: 1}}}/>
+                <Secondary title={'친구 요청'} description={""}  hasBottomBorder={true} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Mates", option: {index: 2}}}/>
+                <Primary title={'게시판'} description={""} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Board", }}/>
                 {boards.map((element, i) => {
-                    return <Secondary title={element.name} description={element.description} hasBottomBorder={i == boards.length - 1} onPress={props.setSelected} to={{screen: "Board", option: {order: i}}}/>
+                    return <Secondary title={element.name} description={element.description} hasBottomBorder={i == boards.length - 1} closeSide={props.closeSide} setSelected={props.setSelected} to={{screen: "Board", option: {order: i}}}/>
                 })}
             </ScrollView>
         </View>
