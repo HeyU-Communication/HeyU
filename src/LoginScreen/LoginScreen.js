@@ -72,7 +72,10 @@ export default function LoginScreen({ route, navigation }) {
             dbService.collection('profileRef').doc(user.uid).get().then(snapshot => {
                 const data = snapshot.data();
                 let nowDate = new Date();
-                dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
+                dbService.collection('profile').doc(data.country).collection(data.university).doc(data.uid).onSnapshot(snapshot => {
+                  const profileData = snapshot.data();
+                  console.log(profileData.profileUrl);
+                  dbService.collection("profile").doc(data.country).collection(data.university).doc(data.uid).collection("regular").where('repEndDate', '>', nowDate).onSnapshot((querySnapshot) => {
                     const regularData = [];
                     querySnapshot.forEach(doc => {
                         regularData.push(doc.data());
@@ -107,9 +110,12 @@ export default function LoginScreen({ route, navigation }) {
                             nickname: data.nickname,
                             studentId: data.studentId,
                             scheduleProps: myScheduleData,
+                            name: profileData.name,
+                            profileUrl: profileData.profileUrl,
                         })
                     })
                 })
+              })  
             });
         }).catch(err => {
             setLoading(false);

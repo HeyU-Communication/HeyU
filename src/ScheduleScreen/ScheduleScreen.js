@@ -319,7 +319,7 @@ export default function ScheduleScreen(props) {
                     {
                         friendElements.map((data, index) => {
                             return <TouchableOpacity style={index == selectedFriend ? styles.selectedFriendCircle : styles.friendCircle} onPress={() => setSelectedFriend(index)}>
-                                    <Text style={{textAlign: 'center', width: radius - 4, lineHeight: radius - 4}}>{data.nickname.slice(0, 1)}</Text>
+                                    <Text style={{textAlign: 'center', width: radius - 4, lineHeight: radius - 4}}>{data.nickname == undefined ? "" : data.nickname.slice(0, 1)}</Text>
                                 </TouchableOpacity>
                         })
                     }
