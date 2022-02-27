@@ -95,7 +95,7 @@ function MainScreens(props) {
 }
 
 function CoreScreens({route, navigation}) {
-  const { accountId, country, university, scheduleProps, nickname, studentId } = route.params;
+  const { accountId, country, university, scheduleProps, nickname, studentId, name, profileUrl } = route.params;
 
   const [selected, setSelected] = useState({screen: 'default'});
 
@@ -113,15 +113,15 @@ function CoreScreens({route, navigation}) {
 
   return (
     <Stack.Navigator initialRouteName='Home' backBehavior='initialRoute' screenOptions={{headerShown: false}} >
-      <Stack.Screen name={"Home"}  children={() => <MainScreens accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} openAppMap={openAppMap} openProfileBrief={openProfileBrief} option={selected}/> } />
+      <Stack.Screen name={"Home"}  children={() => <MainScreens accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} name={name} openAppMap={openAppMap} openProfileBrief={openProfileBrief} option={selected} profileUrl={profileUrl}/> } />
       <Stack.Screen name={'Map'} options={{
         animation: 'slide_from_left',
         presentation: 'containedTransparentModal'
-      }} children={() => <AppMap accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} setSelected={setSelected} closeSide={closeSide} />} />
+      }} children={() => <AppMap accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} setSelected={setSelected} closeSide={closeSide} name={name} profileUrl={profileUrl}/>} />
       <Stack.Screen name={'ProfileBrief'} options={{
         animation: 'slide_from_right',
         presentation: 'containedTransparentModal'
-      }} children={() => <ProfileBrief accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} closeSide={closeSide} />} />
+      }} children={() => <ProfileBrief accountId={accountId} country={country} university={university} scheduleProps={scheduleProps} nickname={nickname} studentId={studentId} closeSide={closeSide} name={name} profileUrl={profileUrl}/>} />
     </Stack.Navigator>
   )
 }

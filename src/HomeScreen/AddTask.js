@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, BackHandler, ScrollView, Alert, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, BackHandler, ScrollView, Alert, TextInput, Platform,} from 'react-native';
 import Modal from "react-native-modal";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { getCalendarDateString } from 'react-native-calendars/src/services';
@@ -79,7 +79,7 @@ export default function AddTask(props) {
             if (i > 12) {
                 hours.push(i.toString().padStart(2, '0'));    
             }
-            hours.push(i.toString().padStart(2, '0'));
+            else hours.push(i.toString().padStart(2, '0'));
         }
         for (let i = 0; i <= 59; i++) {
             minutes.push(i.toString().padStart(2, '0'));
@@ -471,15 +471,20 @@ export default function AddTask(props) {
                 <Modal isVisible={startTimeSelectOpen} onBackdropPress={() => setStartTimeSelectOpen(false)} onBackButtonPress={() => setStartTimeSelectOpen(false)}>
                     <View style={styles.timePicker}>
                         <Text style={styles.enterTimeText}>시작 시간</Text>
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center',}}>
                             
                             <Picker
                                 selectedValue={startHour}
                                 onValueChange={(itemValue, itemIndex) =>
                                     setStartHour(itemValue)
                                 }
-                                style={{backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center'}}
+                                style={Platform.OS == 'ios' ? 
+                                    {backgroundColor: 'transparent', width: 100, height: 200, textAlign: 'center', borderRadius: 10} 
+                                    :
+                                    {backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center', borderRadius: 10} 
+                                }
                                 itemStyle={{textAlign: 'center'}}
+                                numberOfLines={1}
                             >
                                 {hourElements}
                             </Picker>
@@ -489,7 +494,11 @@ export default function AddTask(props) {
                                 onValueChange={(itemValue, itemIndex) =>
                                     setStartMinute(itemValue)
                                 }
-                                style={{backgroundColor: '#E1E1E1', width: 100, height: 50, borderRadius: 10,}}
+                                style={Platform.OS == 'ios' ? 
+                                    {backgroundColor: 'transparent', width: 100, height: 200, textAlign: 'center', borderRadius: 10} 
+                                    :
+                                    {backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center', borderRadius: 10} 
+                                }
                                 itemStyle={{textAlign: 'center'}}
                             >
                                 {minuteElements}
@@ -512,7 +521,11 @@ export default function AddTask(props) {
                                 onValueChange={(itemValue, itemIndex) =>
                                     setEndHour(itemValue)
                                 }
-                                style={{backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center'}}
+                                style={Platform.OS == 'ios' ? 
+                                    {backgroundColor: 'transparent', width: 100, height: 200, textAlign: 'center', borderRadius: 10} 
+                                    :
+                                    {backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center', borderRadius: 10} 
+                                }
                                 itemStyle={{textAlign: 'center'}}
                             >
                                 {hourElements}
@@ -523,7 +536,11 @@ export default function AddTask(props) {
                                 onValueChange={(itemValue, itemIndex) =>
                                     setEndMinute(itemValue)
                                 }
-                                style={{backgroundColor: '#E1E1E1', width: 100, height: 50, borderRadius: 10,}}
+                                style={Platform.OS == 'ios' ? 
+                                    {backgroundColor: 'transparent', width: 100, height: 200, textAlign: 'center', borderRadius: 10} 
+                                    :
+                                    {backgroundColor: '#E1E1E1', width: 100, height: 50, textAlign: 'center', borderRadius: 10} 
+                                }
                                 itemStyle={{textAlign: 'center'}}
                             >
                                 {minuteElements}
@@ -621,6 +638,7 @@ const styles = StyleSheet.create({
         fontFamily: 'AbhayaLibre_ExtraBold',
         left: 20,
         marginTop: 30,
+        marginBottom: 8,
         zIndex: 9,
     },
     startDateButton: {
@@ -668,7 +686,7 @@ const styles = StyleSheet.create({
     },
     enterTimeText: {
         marginTop: 30,
-        marginBottom: 20,
+        marginBottom: Platform.OS == 'ios' ? 0 : 20,
         fontFamily: 'AbhayaLibre_ExtraBold',
         fontSize: 18,
         fontWeight: '800',
@@ -676,7 +694,7 @@ const styles = StyleSheet.create({
     },
     timePicker: {
         backgroundColor: 'white', 
-        height: 220,
+        height: Platform.OS == 'ios' ? 350 : 220,
         textAlign: 'center',
         borderWidth: 5,
         borderColor: '#FFDE00'
